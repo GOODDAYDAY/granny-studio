@@ -2,6 +2,9 @@
 
 **先把颜色织一遍，再动手。**
 
+[![Deploy to GitHub Pages](https://github.com/GOODDAYDAY/granny-studio/actions/workflows/deploy.yml/badge.svg)](https://github.com/GOODDAYDAY/granny-studio/actions/workflows/deploy.yml)
+**[打开线上版 →](https://gooddayday.github.io/granny-studio/)** · [GitHub 仓库](https://github.com/GOODDAYDAY/granny-studio)
+
 一个纯前端的祖母方格配色沙盘：设计六瓣花方格、从自己的图片里吸色、把方格铺成 3×4 / 3×7 的毯子，退后一步看整体效果。
 
 ![方格编辑](docs/screenshot-editor.jpg)
