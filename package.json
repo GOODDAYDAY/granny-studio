@@ -1,0 +1,35 @@
+{
+  "name": "granny-studio",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "织色间：本地优先的祖母方格配色与拼毯沙盘",
+  "license": "MIT",
+  "homepage": "https://gooddayday.github.io/granny-studio/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/GOODDAYDAY/granny-studio.git"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.1.2",
+    "typescript": "~7.0.2",
+    "vite": "^8.3.5",
+    "vitest": "^5.0.5"
+  },
+  "dependencies": {
+    "lucide-react": "^1.63.0",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "zustand": "^5.0.16"
+  }
+}
+
