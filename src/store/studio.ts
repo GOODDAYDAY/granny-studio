@@ -19,14 +19,13 @@ import {
   makeId,
   renameDesign as renameDesignEntity,
   rotateLayerColors,
-  setGapColor as setGapColorEntity,
+  setBackground as setBackgroundEntity,
   setPuffPlacement as setPuffPlacementEntity,
   setRegionColor,
   shuffleLayerColors,
 } from '../domain/design'
 import { createDemoProject } from '../domain/presets'
 import type {
-  GapLayer,
   Hex,
   LayerId,
   Mode,
@@ -81,7 +80,7 @@ interface StudioState {
   deleteDesign: (id: string) => void
   renameDesign: (id: string, name: string) => void
   setPuffPlacement: (placement: PuffPlacement) => void
-  setGapColor: (layer: GapLayer) => void
+  setBackground: () => void
 
   selectColor: (hex: Hex) => void
   addPaletteColor: (hex: Hex, source?: PaletteColor['source']) => void
@@ -215,7 +214,7 @@ export const useStudio = create<StudioState>()((set, get) => {
           border: baseColors[0],
         },
         puffPlacement: source?.puffPlacement ?? 'outer',
-        gaps: source?.gaps,
+        background: source?.background,
       })
       commit((draft) => {
         draft.designs.push(design)
@@ -288,10 +287,10 @@ export const useStudio = create<StudioState>()((set, get) => {
       replaceActiveDesign(setPuffPlacementEntity(source, placement))
     },
 
-    setGapColor: (layer) => {
+    setBackground: () => {
       const source = activeDesign()
       if (!source) return
-      replaceActiveDesign(setGapColorEntity(source, layer, get().activeColor))
+      replaceActiveDesign(setBackgroundEntity(source, get().activeColor))
     },
 
     selectColor: (hex) => {

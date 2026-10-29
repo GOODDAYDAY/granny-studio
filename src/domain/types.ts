@@ -4,8 +4,6 @@ export type PuffPlacement = 'inner' | 'outer'
 
 export type LayerId = 'center' | 'puff' | 'background' | 'border'
 
-export type GapLayer = 'center' | 'inner' | 'mid' | 'outer'
-
 export type Rotation = 0 | 90 | 180 | 270
 
 export type Mode = 'square' | 'board'
@@ -28,8 +26,8 @@ export interface SquareDesign {
   name: string
   patternId: string
   colors: Record<string, Hex>
-  /** Negative-space colors between the concentric layers, inside this square. */
-  gaps: Record<GapLayer, Hex>
+  /** Background inside the outer border — the white area inside the frame. */
+  background: Hex
   puffPlacement: PuffPlacement
   createdAt: number
   updatedAt: number

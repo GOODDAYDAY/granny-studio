@@ -611,15 +611,15 @@ p {
   cursor: crosshair;
 }
 
-.flower-svg.is-interactive .gap-layer {
+.flower-svg.is-interactive .background-layer {
   cursor: crosshair;
 }
 
-.gap-layer:focus {
+.background-layer:focus {
   outline: none;
 }
 
-.gap-layer:focus-visible {
+.background-layer:focus-visible {
   filter: brightness(1.04);
 }
 
@@ -1139,53 +1139,50 @@ p {
   flex: 1;
 }
 
-.gap-panel {
+.bg-panel {
   margin-top: 13px;
   padding-top: 12px;
   border-top: 1px dashed rgba(221, 204, 182, 0.8);
 }
 
-.gap-row {
+.bg-row {
   display: grid;
-  grid-template-columns: 24px minmax(0, 1fr) auto;
-  gap: 8px;
+  grid-template-columns: 28px minmax(0, 1fr) auto;
+  gap: 9px;
   align-items: center;
-  padding: 6px 7px;
+  padding: 7px;
   border-radius: 10px;
+  background: rgba(255, 250, 242, 0.55);
 }
 
-.gap-row:hover {
-  background: rgba(255, 250, 242, 0.65);
-}
-
-.gap-swatch {
-  width: 24px;
-  height: 24px;
+.bg-swatch {
+  width: 28px;
+  height: 28px;
   border: 1px solid rgba(58, 48, 39, 0.13);
-  border-radius: 8px;
+  border-radius: 9px;
   box-shadow:
     inset 0 1px 2px rgba(255, 255, 255, 0.3),
     0 1px 3px rgba(70, 48, 30, 0.08);
 }
 
-.gap-info {
+.bg-info {
   display: flex;
   flex-direction: column;
   gap: 1px;
   min-width: 0;
 }
 
-.gap-name {
+.bg-name {
   font-size: 11px;
   font-weight: 600;
 }
 
-.gap-hint {
+.bg-hint {
   color: var(--muted);
   font-size: 9px;
 }
 
-.gap-panel .micro-hint {
+.bg-panel .micro-hint {
   margin-top: 6px;
 }
 

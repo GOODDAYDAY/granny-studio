@@ -19,16 +19,15 @@ import {
   getLayerColors,
   isLayerUniform,
   rotateLayerColors,
-  setGapColor,
+  setBackground,
   setPuffPlacement,
   setRegionColor,
   shuffleLayerColors,
 } from './design'
 import { flowerGeometry } from './geometry'
 import {
-  DEFAULT_GAP_COLORS,
+  DEFAULT_BACKGROUND,
   FLOWER_REGIONS,
-  GAP_LAYERS,
   LAYERS,
   makeLayerColors,
   regionsOfLayer,
@@ -59,7 +58,6 @@ describe('flower pattern', () => {
     expect(FLOWER_REGIONS).toHaveLength(46)
     expect(new Set(FLOWER_REGIONS.map((region) => region.id)).size).toBe(46)
     expect(LAYERS).toHaveLength(4)
-    expect(GAP_LAYERS).toHaveLength(4)
   })
 
   it('maps layer colors to every region', () => {
@@ -91,7 +89,7 @@ describe('flower pattern', () => {
 describe('design operations', () => {
   it('creates a complete design', () => {
     expect(Object.keys(design.colors)).toHaveLength(46)
-    expect(design.gaps).toEqual(DEFAULT_GAP_COLORS)
+    expect(design.background).toBe(DEFAULT_BACKGROUND)
     expect(getLayerColors(design)).toEqual([
       '#112233',
       '#223344',
@@ -103,11 +101,10 @@ describe('design operations', () => {
     }
   })
 
-  it('recolors one gap layer only', () => {
-    const next = setGapColor(design, 'inner', '#ABCDEF')
-    expect(next.gaps.inner).toBe('#ABCDEF')
-    expect(next.gaps.center).toBe(DEFAULT_GAP_COLORS.center)
-    expect(next.gaps.outer).toBe(DEFAULT_GAP_COLORS.outer)
+  it('recolors the square background only', () => {
+    const next = setBackground(design, '#ABCDEF')
+    expect(next.background).toBe('#ABCDEF')
+    expect(next.colors).toEqual(design.colors)
   })
 
   it('paints one region without touching the rest of the layer', () => {
@@ -151,8 +148,7 @@ describe('design operations', () => {
     expect(copy.id).not.toBe(design.id)
     expect(copy.colors).toEqual(design.colors)
     expect(copy.colors).not.toBe(design.colors)
-    expect(copy.gaps).toEqual(design.gaps)
-    expect(copy.gaps).not.toBe(design.gaps)
+    expect(copy.background).toBe(design.background)
   })
 })
 
@@ -211,7 +207,7 @@ describe('demo project', () => {
     expect(project.palette.length).toBeGreaterThanOrEqual(4)
     for (const item of project.designs) {
       expect(Object.keys(item.colors)).toHaveLength(46)
-      expect(item.gaps).toEqual(DEFAULT_GAP_COLORS)
+      expect(item.background).toBe(DEFAULT_BACKGROUND)
       for (const layer of LAYERS) {
         expect(isLayerUniform(item, layer.id)).toBe(true)
       }

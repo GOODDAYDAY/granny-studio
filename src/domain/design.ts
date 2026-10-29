@@ -1,12 +1,12 @@
 import {
-  DEFAULT_GAP_COLORS,
+  DEFAULT_BACKGROUND,
   FLOWER_PATTERN_ID,
   FLOWER_REGIONS,
   LAYERS,
   makeLayerColors,
   regionsOfLayer,
 } from './patterns'
-import type { GapLayer, Hex, LayerId, PuffPlacement, SquareDesign } from './types'
+import type { Hex, LayerId, PuffPlacement, SquareDesign } from './types'
 
 let fallbackId = 0
 
@@ -21,7 +21,7 @@ export function makeId(prefix: string): string {
 export interface CreateDesignInput {
   name: string
   colors: Record<LayerId, Hex>
-  gaps?: Partial<Record<GapLayer, Hex>>
+  background?: Hex
   puffPlacement?: PuffPlacement
   id?: string
   now?: number
@@ -34,7 +34,7 @@ export function createDesign(input: CreateDesignInput): SquareDesign {
     name: input.name,
     patternId: FLOWER_PATTERN_ID,
     colors: makeLayerColors(input.colors),
-    gaps: { ...DEFAULT_GAP_COLORS, ...(input.gaps ?? {}) },
+    background: input.background ?? DEFAULT_BACKGROUND,
     puffPlacement: input.puffPlacement ?? 'outer',
     createdAt: now,
     updatedAt: now,
@@ -130,18 +130,12 @@ export function setPuffPlacement(
   return { ...design, puffPlacement: placement, updatedAt: Date.now() }
 }
 
-export function setGapColor(
+export function setBackground(
   design: SquareDesign,
-  layer: GapLayer,
   hex: Hex,
 ): SquareDesign {
-  const gaps = { ...DEFAULT_GAP_COLORS, ...(design.gaps ?? {}) }
-  if (gaps[layer] === hex) return design
-  return {
-    ...design,
-    gaps: { ...gaps, [layer]: hex },
-    updatedAt: Date.now(),
-  }
+  if (design.background === hex) return design
+  return { ...design, background: hex, updatedAt: Date.now() }
 }
 
 export function renameDesign(design: SquareDesign, name: string): SquareDesign {
@@ -157,7 +151,6 @@ export function duplicateDesign(design: SquareDesign, name?: string): SquareDesi
     id: makeId('design'),
     name: name ?? `${design.name} 副本`,
     colors: { ...design.colors },
-    gaps: { ...DEFAULT_GAP_COLORS, ...(design.gaps ?? {}) },
     createdAt: now,
     updatedAt: now,
   }

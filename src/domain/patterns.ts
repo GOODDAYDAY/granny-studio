@@ -1,4 +1,4 @@
-import type { GapLayer, Hex, LayerId, PatternRegion } from './types'
+import type { Hex, LayerId, PatternRegion } from './types'
 
 export const FLOWER_PATTERN_ID = 'flower-6-8'
 
@@ -9,27 +9,8 @@ export interface LayerMeta {
   count: number
 }
 
-export interface GapLayerMeta {
-  id: GapLayer
-  name: string
-  hint: string
-}
-
-/** Four concentric negative-space layers inside one square. */
-export const GAP_LAYERS: GapLayerMeta[] = [
-  { id: 'center', name: '中心', hint: '花心内空隙' },
-  { id: 'inner', name: '内圈', hint: '外瓣与底针之间' },
-  { id: 'mid', name: '中圈', hint: '底针与边框之间' },
-  { id: 'outer', name: '外圈', hint: '边框与四角' },
-]
-
-/** Neutral linen shadows so a fresh square already reads as a solid piece. */
-export const DEFAULT_GAP_COLORS: Record<GapLayer, Hex> = {
-  center: '#F4EADB',
-  inner: '#EFE3D2',
-  mid: '#E9DCC9',
-  outer: '#E2D3BE',
-}
+/** Warm white for the area inside the outer border. */
+export const DEFAULT_BACKGROUND: Hex = '#F2E9D9'
 
 export const LAYERS: LayerMeta[] = [
   { id: 'center', name: '花心', hint: '6 瓣小花瓣', count: 6 },
