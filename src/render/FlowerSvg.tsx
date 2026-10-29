@@ -2,7 +2,7 @@ import { useMemo } from 'react'
 import type { PointerEvent as ReactPointerEvent, ReactNode } from 'react'
 import { adjustLightness } from '../domain/color'
 import { flowerGeometry } from '../domain/geometry'
-import type { FlowerGeometry, RadialPiece } from '../domain/geometry'
+import type { ClusterPiece, FlowerGeometry } from '../domain/geometry'
 import type { LayerId, SquareDesign } from '../domain/types'
 
 export function uniqueDesignColors(design: SquareDesign): string[] {
@@ -27,42 +27,6 @@ export function ColorDefs({ design, prefix }: { design: SquareDesign; prefix: st
           <stop offset="100%" stopColor={adjustLightness(hex, -13)} />
         </linearGradient>
       ))}
-      <pattern
-        id={`${prefix}-yarn`}
-        width=".22"
-        height=".22"
-        patternUnits="userSpaceOnUse"
-        patternTransform="rotate(26)"
-      >
-        <path
-          d="M0 .035 Q .055 .005 .11 .035 T .22 .035"
-          fill="none"
-          stroke="#2A1A0F"
-          strokeOpacity=".14"
-          strokeWidth=".015"
-        />
-        <path
-          d="M0 .09 Q .055 .06 .11 .09 T .22 .09"
-          fill="none"
-          stroke="#FFF8EC"
-          strokeOpacity=".16"
-          strokeWidth=".011"
-        />
-        <path
-          d="M0 .14 Q .055 .11 .11 .14 T .22 .14"
-          fill="none"
-          stroke="#2A1A0F"
-          strokeOpacity=".1"
-          strokeWidth=".012"
-        />
-        <path
-          d="M0 .19 Q .055 .16 .11 .19 T .22 .19"
-          fill="none"
-          stroke="#FFF8EC"
-          strokeOpacity=".09"
-          strokeWidth=".008"
-        />
-      </pattern>
       <filter id={`${prefix}-fuzz`} x="-18%" y="-18%" width="136%" height="136%">
         <feTurbulence
           type="fractalNoise"
@@ -74,11 +38,11 @@ export function ColorDefs({ design, prefix }: { design: SquareDesign; prefix: st
         <feDisplacementMap
           in="SourceGraphic"
           in2="noise"
-          scale=".06"
+          scale=".04"
           xChannelSelector="R"
           yChannelSelector="G"
         />
-        <feGaussianBlur stdDeviation=".005" />
+        <feGaussianBlur stdDeviation=".003" />
       </filter>
       <filter id={`${prefix}-grain`} x="0" y="0" width="100%" height="100%">
         <feTurbulence
@@ -97,270 +61,84 @@ export function ColorDefs({ design, prefix }: { design: SquareDesign; prefix: st
   )
 }
 
-function puffPath(length: number, width: number): string {
-  const h = length / 2
-  const w = width / 2
-  return [
-    `M 0 ${-h}`,
-    `C ${w * 0.65} ${-h * 0.98}, ${w * 0.98} ${-h * 0.55}, ${w * 0.98} 0`,
-    `C ${w * 0.98} ${h * 0.55}, ${w * 0.62} ${h * 0.9}, 0 ${h}`,
-    `C ${-w * 0.62} ${h * 0.9}, ${-w * 0.98} ${h * 0.55}, ${-w * 0.98} 0`,
-    `C ${-w * 0.98} ${-h * 0.55}, ${-w * 0.65} ${-h * 0.98}, 0 ${-h}`,
-    'Z',
-  ].join(' ')
-}
+const LEFT_DC =
+  'M -2,2 C -8,-6 -16,-19 -14,-27 C -12,-33 -4,-31 -3,-24 C -2,-15 0,-5 -2,2 Z'
+const RIGHT_DC =
+  'M 2,2 C 8,-6 16,-19 14,-27 C 12,-33 4,-31 3,-24 C 2,-15 0,-5 2,2 Z'
+const MIDDLE_DC =
+  'M 0,3 C -5,-6 -6,-21 -5,-28 C -3,-34 3,-34 5,-28 C 6,-21 5,-6 0,3 Z'
 
-function clusterPath(length: number, width: number): string {
-  const h = length / 2
-  const w = width / 2
-  return [
-    `M 0 ${-h}`,
-    `C ${w * 0.56} ${-h * 0.92}, ${w * 0.9} ${-h * 0.4}, ${w * 0.9} 0`,
-    `C ${w * 0.9} ${h * 0.4}, ${w * 0.56} ${h * 0.92}, 0 ${h}`,
-    `C ${-w * 0.56} ${h * 0.92}, ${-w * 0.9} ${h * 0.4}, ${-w * 0.9} 0`,
-    `C ${-w * 0.9} ${-h * 0.4}, ${-w * 0.56} ${-h * 0.92}, 0 ${-h}`,
-    'Z',
-  ].join(' ')
-}
-
-function PuffShape({
-  length,
-  width,
-  fill,
-  texture,
-  detail,
-}: {
-  length: number
-  width: number
-  fill: string
-  texture: string
-  detail: boolean
-}) {
-  const h = length / 2
-  const w = width / 2
-  const ridgeXs = [-w * 0.3, 0, w * 0.3]
+function DcCluster({ fill, detail }: { fill: string; detail: boolean }) {
   return (
-    <>
-      <path
-        d={puffPath(length, width)}
-        transform="translate(.035 .05)"
-        fill="rgba(52,32,18,.15)"
+    <g>
+      <g
+        fill="rgba(30,19,8,.20)"
+        transform="translate(1.2 2.2)"
         pointerEvents="none"
-      />
-      <path
-        className="base"
-        d={puffPath(length, width)}
+      >
+        <path d={LEFT_DC} />
+        <path d={RIGHT_DC} />
+        <path d={MIDDLE_DC} />
+      </g>
+      <g
         fill={fill}
-        stroke="rgba(56,37,23,.2)"
-        strokeWidth={0.018}
-      />
+        stroke="none"
+        strokeLinejoin="round"
+      >
+        <path className="base" d={LEFT_DC} />
+        <path className="base" d={RIGHT_DC} />
+        <path className="base" d={MIDDLE_DC} />
+      </g>
       {detail && (
         <>
-          <path
-            d={puffPath(length, width)}
-            fill={texture}
-            pointerEvents="none"
-          />
-          <path
-            d={puffPath(length, width)}
-            transform={`translate(0 ${-length * 0.07}) scale(.59 .76)`}
-            fill="rgba(255,255,255,.15)"
-            pointerEvents="none"
-          />
-          {ridgeXs.map((x, index) => (
-            <path
-              key={`puff-ridge-${index}`}
-              d={`M ${x} ${h * 0.74} C ${x + w * 0.075} ${h * 0.24}, ${x - w * 0.075} ${-h * 0.24}, ${x} ${-h * 0.74}`}
-              fill="none"
-              stroke="rgba(47,28,15,.2)"
-              strokeWidth={0.021}
-              strokeLinecap="round"
-              pointerEvents="none"
-            />
-          ))}
-          {ridgeXs.map((x, index) => (
-            <path
-              key={`puff-ridge-light-${index}`}
-              d={`M ${x + 0.02} ${h * 0.64} C ${x + w * 0.075 + 0.02} ${h * 0.18}, ${x - w * 0.075 + 0.02} ${-h * 0.18}, ${x + 0.02} ${-h * 0.64}`}
-              fill="none"
-              stroke="rgba(255,255,255,.18)"
-              strokeWidth={0.011}
-              strokeLinecap="round"
-              pointerEvents="none"
-            />
-          ))}
-          <path
-            d={`M ${-w * 0.7} ${h * 0.72} Q 0 ${h * 0.88} ${w * 0.7} ${h * 0.72}`}
+          <g
+            stroke="rgba(0,0,0,.19)"
+            strokeWidth={1.2}
             fill="none"
-            stroke="rgba(47,28,15,.2)"
-            strokeWidth={0.022}
+            strokeLinecap="round"
+            pointerEvents="none"
+          >
+            <path d="M -2,0 C -8,-8 -14,-19 -13,-26" />
+            <path d="M -5,-9 C -9,-13 -12,-18 -11,-23" />
+            <path d="M -3,-16 C -6,-20 -8,-24 -7,-28" />
+            <path d="M 2,0 C 8,-8 14,-19 13,-26" />
+            <path d="M 5,-9 C 9,-13 12,-18 11,-23" />
+            <path d="M 3,-16 C 6,-20 8,-24 7,-28" />
+            <path d="M -3,-4 C -4,-13 -4,-22 -3,-28" />
+            <path d="M 3,-4 C 4,-13 4,-22 3,-28" />
+            <path d="M -4,-12 C -1,-16 2,-16 4,-12" />
+            <path d="M -4,-20 C -1,-24 2,-24 4,-20" />
+          </g>
+          <g
+            stroke="rgba(255,255,255,.23)"
+            strokeWidth={1.1}
+            fill="none"
+            strokeLinecap="round"
+            pointerEvents="none"
+          >
+            <path d="M -9,-14 C -11,-19 -11,-24 -9,-28" />
+            <path d="M 0,-8 C -1,-16 -1,-23 0,-29" />
+            <path d="M 9,-14 C 11,-19 11,-24 9,-28" />
+          </g>
+          <path
+            d="M -16,-28 Q -11,-34 -5,-29 Q 0,-35 5,-29 Q 11,-34 16,-28"
+            fill="none"
+            stroke="rgba(0,0,0,.17)"
+            strokeWidth={2.1}
             strokeLinecap="round"
             pointerEvents="none"
           />
           <path
-            d={`M ${-w * 0.58} ${-h * 0.22} Q 0 ${-h * 0.32} ${w * 0.58} ${-h * 0.22}`}
+            d="M -15,-29 Q -10,-34 -5,-30 Q 0,-35 5,-30 Q 10,-34 15,-29"
             fill="none"
-            stroke="rgba(47,28,15,.09)"
-            strokeWidth={0.014}
-            pointerEvents="none"
-          />
-          <path
-            d={`M ${-w * 0.6} ${h * 0.16} Q 0 ${h * 0.25} ${w * 0.6} ${h * 0.16}`}
-            fill="none"
-            stroke="rgba(47,28,15,.08)"
-            strokeWidth={0.013}
-            pointerEvents="none"
-          />
-        </>
-      )}
-    </>
-  )
-}
-
-function ClusterShape({
-  length,
-  width,
-  fill,
-  texture,
-  detail,
-}: {
-  length: number
-  width: number
-  fill: string
-  texture: string
-  detail: boolean
-}) {
-  const h = length / 2
-  const w = width / 2
-  const ridgeXs = [-w * 0.24, 0, w * 0.24]
-  return (
-    <>
-      <path
-        className="base"
-        d={clusterPath(length, width)}
-        fill={fill}
-        stroke="rgba(56,37,23,.19)"
-        strokeWidth={0.017}
-      />
-      {detail && (
-        <>
-          <path d={clusterPath(length, width)} fill={texture} pointerEvents="none" />
-          {ridgeXs.map((x, index) => (
-            <path
-              key={`ridge-${index}`}
-              d={`M ${x} ${h * 0.66} C ${x + w * 0.06} ${h * 0.15}, ${x - w * 0.06} ${-h * 0.15}, ${x} ${-h * 0.66}`}
-              fill="none"
-              stroke="rgba(47,28,15,.18)"
-              strokeWidth={0.019}
-              strokeLinecap="round"
-              pointerEvents="none"
-            />
-          ))}
-          {ridgeXs.map((x, index) => (
-            <path
-              key={`ridge-light-${index}`}
-              d={`M ${x + 0.018} ${h * 0.58} C ${x + w * 0.06 + 0.018} ${h * 0.12}, ${x - w * 0.06 + 0.018} ${-h * 0.12}, ${x + 0.018} ${-h * 0.58}`}
-              fill="none"
-              stroke="rgba(255,255,255,.13)"
-              strokeWidth={0.011}
-              strokeLinecap="round"
-              pointerEvents="none"
-            />
-          ))}
-          <path
-            d={`M ${-w * 0.62} ${h * 0.72} Q 0 ${h * 0.86} ${w * 0.62} ${h * 0.72}`}
-            fill="none"
-            stroke="rgba(47,28,15,.18)"
-            strokeWidth={0.019}
+            stroke="rgba(255,255,255,.26)"
+            strokeWidth={1.1}
             strokeLinecap="round"
             pointerEvents="none"
           />
         </>
       )}
-    </>
-  )
-}
-
-function BorderShape({
-  length,
-  width,
-  fill,
-  texture,
-  detail,
-}: {
-  length: number
-  width: number
-  fill: string
-  texture: string
-  detail: boolean
-}) {
-  const ridgeYs = [-width * 0.22, 0, width * 0.22]
-  const x1 = -length / 2 + width * 0.2
-  const x2 = length / 2 - width * 0.2
-  return (
-    <>
-      <rect
-        className="base"
-        x={-length / 2}
-        y={-width / 2}
-        width={length}
-        height={width}
-        rx={width / 2}
-        fill={fill}
-        stroke="rgba(56,37,23,.18)"
-        strokeWidth={0.017}
-      />
-      {detail && (
-        <>
-          <rect
-            x={-length / 2}
-            y={-width / 2}
-            width={length}
-            height={width}
-            rx={width / 2}
-            fill={texture}
-            pointerEvents="none"
-          />
-          {ridgeYs.map((y, index) => (
-            <path
-              key={`border-ridge-${index}`}
-              d={`M ${x1} ${y} Q 0 ${y + 0.025} ${x2} ${y}`}
-              fill="none"
-              stroke="rgba(47,28,15,.18)"
-              strokeWidth={0.018}
-              strokeLinecap="round"
-              pointerEvents="none"
-            />
-          ))}
-          {ridgeYs.map((y, index) => (
-            <path
-              key={`border-light-${index}`}
-              d={`M ${x1 + 0.02} ${y + 0.022} Q 0 ${y + 0.047} ${x2 - 0.02} ${y + 0.022}`}
-              fill="none"
-              stroke="rgba(255,255,255,.14)"
-              strokeWidth={0.01}
-              strokeLinecap="round"
-              pointerEvents="none"
-            />
-          ))}
-          <path
-            d={`M ${-length * 0.28} ${-width * 0.34} Q 0 ${-width * 0.42} ${length * 0.28} ${-width * 0.34}`}
-            fill="none"
-            stroke="rgba(255,255,255,.12)"
-            strokeWidth={0.012}
-            pointerEvents="none"
-          />
-          <path
-            d={`M ${-length * 0.3} ${width * 0.34} Q 0 ${width * 0.42} ${length * 0.3} ${width * 0.34}`}
-            fill="none"
-            stroke="rgba(47,28,15,.16)"
-            strokeWidth={0.016}
-            strokeLinecap="round"
-            pointerEvents="none"
-          />
-        </>
-      )}
-    </>
+    </g>
   )
 }
 
@@ -378,10 +156,9 @@ function RegionShell({ id, layer, children }: RegionShellProps) {
   )
 }
 
-function radialElement(
-  piece: RadialPiece,
+function clusterElement(
+  piece: ClusterPiece,
   fill: string,
-  texture: string,
   detail: boolean,
 ) {
   return (
@@ -390,24 +167,10 @@ function radialElement(
       id={piece.regionId}
       layer={piece.layer}
     >
-      <g transform={`translate(${piece.cx} ${piece.cy}) rotate(${piece.rotation})`}>
-        {piece.kind === 'cluster' ? (
-          <ClusterShape
-            length={piece.length}
-            width={piece.width}
-            fill={fill}
-            texture={texture}
-            detail={detail}
-          />
-        ) : (
-          <PuffShape
-            length={piece.length}
-            width={piece.width}
-            fill={fill}
-            texture={texture}
-            detail={detail}
-          />
-        )}
+      <g
+        transform={`translate(${piece.cx} ${piece.cy}) rotate(${piece.rotation}) scale(${piece.scale})`}
+      >
+        <DcCluster fill={fill} detail={detail} />
       </g>
     </RegionShell>
   )
@@ -426,62 +189,63 @@ export function FlowerShapes({
 }: FlowerShapesProps) {
   const geometry = useMemo(() => flowerGeometry(), [])
   const colors = useMemo(() => uniqueDesignColors(design), [design])
-  const colorIndex = useMemo(() => new Map(colors.map((hex, index) => [hex, index])), [colors])
+  const colorIndex = useMemo(
+    () => new Map(colors.map((hex, index) => [hex, index])),
+    [colors],
+  )
   const fillFor = (hex: string) => `url(#${prefix}-g-${colorIndex.get(hex) ?? 0})`
-  const texture = `url(#${prefix}-yarn)`
+  const borderColor = design.colors['border-0'] ?? colors[0]
 
   return (
     <g
       className="flower-root"
       filter={detail ? `url(#${prefix}-fuzz)` : undefined}
     >
-      {geometry.clusters.map((piece) =>
-        radialElement(
+      <g data-layer="border" className="cluster-outline">
+        <rect
+          x={geometry.outline.x}
+          y={geometry.outline.y}
+          width={geometry.outline.size}
+          height={geometry.outline.size}
+          rx={geometry.outline.rx}
+          fill="none"
+          stroke={fillFor(borderColor)}
+          strokeWidth={geometry.outline.strokeWidth}
+          pointerEvents="stroke"
+        />
+      </g>
+
+      {geometry.border.map((piece) =>
+        clusterElement(
           piece,
           fillFor(design.colors[piece.regionId] ?? colors[0]),
-          texture,
           detail,
         ),
       )}
 
-      {geometry.puffs.map((piece) =>
-        radialElement(
+      {geometry.outer.map((piece) =>
+        clusterElement(
           piece,
           fillFor(design.colors[piece.regionId] ?? colors[0]),
-          texture,
           detail,
         ),
       )}
 
-      {geometry.petals.map((piece) =>
-        radialElement(
+      {geometry.inner.map((piece) =>
+        clusterElement(
           piece,
           fillFor(design.colors[piece.regionId] ?? colors[0]),
-          texture,
           detail,
         ),
       )}
 
-      {geometry.border.map((piece) => {
-        const color = design.colors[piece.regionId] ?? colors[0]
-        return (
-          <RegionShell
-            key={piece.regionId}
-            id={piece.regionId}
-            layer="border"
-          >
-            <g transform={`translate(${piece.cx} ${piece.cy}) rotate(${piece.rotation})`}>
-              <BorderShape
-                length={piece.length}
-                width={piece.width}
-                fill={fillFor(color)}
-                texture={texture}
-                detail={detail}
-              />
-            </g>
-          </RegionShell>
-        )
-      })}
+      {geometry.center.map((piece) =>
+        clusterElement(
+          piece,
+          fillFor(design.colors[piece.regionId] ?? colors[0]),
+          detail,
+        ),
+      )}
 
       {detail && (
         <rect
@@ -490,7 +254,7 @@ export function FlowerShapes({
           width={9.2}
           height={9.2}
           filter={`url(#${prefix}-grain)`}
-          opacity=".07"
+          opacity=".06"
           style={{ mixBlendMode: 'overlay' }}
           pointerEvents="none"
         />
@@ -531,7 +295,7 @@ export default function FlowerSvg({
         .filter(Boolean)
         .join(' ')}
       role={interactive ? 'group' : 'img'}
-      aria-label={interactive ? '点任意一瓣，把整圈填成当前色' : '六瓣花方格'}
+      aria-label={interactive ? '点任意一簇，把整圈填成当前色' : '祖母方格'}
       onPointerDown={handlePointerDown}
     >
       <defs>

@@ -47,12 +47,12 @@ const design = createDesign({
 
 describe('flower pattern', () => {
   it('has the expected regions', () => {
-    expect(regionsOfLayer('center')).toHaveLength(6)
-    expect(regionsOfLayer('puff')).toHaveLength(6)
-    expect(regionsOfLayer('background')).toHaveLength(8)
+    expect(regionsOfLayer('center')).toHaveLength(4)
+    expect(regionsOfLayer('puff')).toHaveLength(8)
+    expect(regionsOfLayer('background')).toHaveLength(12)
     expect(regionsOfLayer('border')).toHaveLength(16)
-    expect(FLOWER_REGIONS).toHaveLength(36)
-    expect(new Set(FLOWER_REGIONS.map((region) => region.id)).size).toBe(36)
+    expect(FLOWER_REGIONS).toHaveLength(40)
+    expect(new Set(FLOWER_REGIONS.map((region) => region.id)).size).toBe(40)
     expect(LAYERS).toHaveLength(4)
   })
 
@@ -63,27 +63,26 @@ describe('flower pattern', () => {
     }
   })
 
-  it('builds the layered reference flower', () => {
+  it('builds the 4 / 8 / 12 / 16 cluster square from the reference svg', () => {
     const geometry = flowerGeometry()
-    expect(geometry.petals).toHaveLength(6)
-    expect(geometry.puffs).toHaveLength(6)
-    expect(geometry.clusters).toHaveLength(8)
+    expect(geometry.center).toHaveLength(4)
+    expect(geometry.inner).toHaveLength(8)
+    expect(geometry.outer).toHaveLength(12)
     expect(geometry.border).toHaveLength(16)
-    expect(geometry.cornerHoles).toHaveLength(0)
+    expect(geometry.outline.size).toBeGreaterThan(8)
+    expect(geometry.outline.size).toBeLessThan(9)
 
-    const inner = Math.hypot(geometry.puffs[0].cx, geometry.puffs[0].cy)
-    const outer = Math.hypot(geometry.clusters[0].cx, geometry.clusters[0].cy)
+    const inner = Math.hypot(geometry.inner[0].cx, geometry.inner[0].cy)
+    const outer = Math.hypot(geometry.outer[0].cx, geometry.outer[0].cy)
+    const border = Math.hypot(geometry.border[0].cx, geometry.border[0].cy)
     expect(inner).toBeLessThan(outer)
-
-    const outerTip = outer + geometry.clusters[0].length / 2
-    expect(outerTip).toBeGreaterThan(3.5)
-    expect(outerTip).toBeLessThan(4)
+    expect(outer).toBeLessThan(border)
   })
 })
 
 describe('design operations', () => {
   it('creates a complete design', () => {
-    expect(Object.keys(design.colors)).toHaveLength(36)
+    expect(Object.keys(design.colors)).toHaveLength(40)
     expect(getLayerColors(design)).toEqual([
       '#112233',
       '#223344',
@@ -195,7 +194,7 @@ describe('demo project', () => {
     expect(occupiedCount(project.board)).toBe(4)
     expect(project.palette.length).toBeGreaterThanOrEqual(8)
     for (const item of project.designs) {
-      expect(Object.keys(item.colors)).toHaveLength(36)
+      expect(Object.keys(item.colors)).toHaveLength(40)
       for (const layer of LAYERS) {
         expect(isLayerUniform(item, layer.id)).toBe(true)
       }

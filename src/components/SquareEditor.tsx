@@ -65,7 +65,7 @@ export default function SquareEditor() {
             spellCheck={false}
           />
           <p className="stage-sub">
-            四圈 · 4 个颜色 · 6 / 6 / 8 / 16
+            四圈 · 4 个颜色 · 4 / 8 / 12 / 16
           </p>
         </div>
         <div className="stage-actions">
@@ -103,7 +103,7 @@ export default function SquareEditor() {
         </div>
         <div className="stage-hint">
           <span className="hint-dot" style={{ background: activeColor }} />
-          四圈四色 · 当前 {activeColorName}；点任意一瓣，整圈填当前色
+          四圈四色 · 当前 {activeColorName}；点任意一簇，整圈填当前色
         </div>
       </div>
     </>
