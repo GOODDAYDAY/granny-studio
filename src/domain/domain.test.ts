@@ -175,6 +175,22 @@ describe('board operations', () => {
     expect(cycled.cells['1:1'].designId).toBe('y')
   })
 
+  it('keeps per-cell fill colors through design changes', () => {
+    let board = createBoard(2, 2)
+    board = assignCell(board, 0, 0, 'a', 0, '#112233')
+    expect(board.cells['0:0'].fill).toBe('#112233')
+
+    board = rotateCell(board, 0, 0)
+    expect(board.cells['0:0'].fill).toBe('#112233')
+
+    const filled = fillBoard(board, 'z')
+    expect(filled.cells['0:0'].fill).toBe('#112233')
+
+    const cycled = cycleDesigns(filled, ['x', 'y'])
+    expect(cycled.cells['0:0'].fill).toBe('#112233')
+    expect(cycled.cells['0:1'].fill).toBeUndefined()
+  })
+
   it('clamps dimensions', () => {
     const board = resizeBoard(createBoard(2, 2), 99, 0)
     expect(board.rows).toBe(24)

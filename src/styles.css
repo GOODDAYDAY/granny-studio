@@ -1177,6 +1177,25 @@ p {
   margin-top: 6px;
 }
 
+.fill-cycle-btn {
+  width: 100%;
+  margin-top: 9px;
+}
+
+.cell-fill {
+  margin-top: 9px;
+  padding-top: 9px;
+  border-top: 1px dashed rgba(221, 204, 182, 0.8);
+}
+
+.cell-fill .sub-label {
+  margin-top: 0;
+}
+
+.cell-fill .micro-hint {
+  margin-top: 5px;
+}
+
 /* ---------- board ---------- */
 
 .board-canvas {
@@ -1215,9 +1234,10 @@ p {
 }
 
 .board-cell-hit.selected {
-  fill: rgba(182, 92, 66, 0.055);
-  stroke: var(--accent);
-  stroke-width: 0.17;
+  fill: rgba(255, 248, 236, 0.06);
+  stroke: #2f241a;
+  stroke-width: 0.14;
+  stroke-dasharray: 0.2 0.12;
 }
 
 .board-empty-hint {

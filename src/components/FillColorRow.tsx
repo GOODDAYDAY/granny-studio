@@ -8,8 +8,8 @@ export default function FillColorRow() {
   return (
     <div className="fill-block">
       <div className="sub-label">
-        <span>填缝色</span>
-        <span>格子间 + 花片内</span>
+        <span>整毯填缝</span>
+        <span>接缝 + 默认</span>
       </div>
       <div className="fill-row">
         <button
@@ -29,7 +29,7 @@ export default function FillColorRow() {
               className={`fill-dot${active ? ' is-active' : ''}`}
               style={{ background: color.hex }}
               title={`${color.name} ${color.hex}`}
-              aria-label={`填缝色 ${color.name} ${color.hex}`}
+              aria-label={`整毯填缝色 ${color.name} ${color.hex}`}
               aria-pressed={active}
               onClick={() => setFill(color.hex)}
             />
@@ -37,7 +37,7 @@ export default function FillColorRow() {
         })}
       </div>
       <p className="micro-hint">
-        填上后，格子之间和花片内部的空隙都用这个颜色；「无」回到露底布。
+        整毯默认 + 格子之间的接缝；拼毯里选中格子，可以单独改这一格。
       </p>
     </div>
   )

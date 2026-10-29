@@ -94,7 +94,6 @@ export default function BoardSvg({
               design={design}
               prefix={`${idPrefix}-${design.id}`}
               detail={detail}
-              backing={backing}
             />
           </symbol>
         ))}
@@ -183,11 +182,22 @@ export default function BoardSvg({
           const placement = board.cells[`${row}:${col}`]
           const design = placement ? designMap.get(placement.designId) : undefined
           if (!placement || !design) return null
+          const cellFill = placement.fill === undefined ? backing : placement.fill
           return (
             <g
               key={`tile-${row}-${col}`}
               transform={`translate(${x + tile / 2} ${y + tile / 2}) rotate(${placement.rotation})`}
             >
+              {cellFill && (
+                <rect
+                  x={-4.55}
+                  y={-4.55}
+                  width={9.1}
+                  height={9.1}
+                  rx={0.55}
+                  fill={cellFill}
+                />
+              )}
               <use
                 href={`#${idPrefix}-sq-${design.id}`}
                 x={-tile / 2}

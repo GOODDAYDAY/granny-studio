@@ -68,10 +68,13 @@ export default function LayoutPanel() {
   )
   const selectedCell = useStudio((state) => state.selectedCell)
   const fill = useStudio((state) => state.project.fill ?? null)
+  const palette = useStudio((state) => state.project.palette)
   const boardTool = useStudio((state) => state.boardTool)
   const setBoardSize = useStudio((state) => state.setBoardSize)
   const setGap = useStudio((state) => state.setGap)
   const setFabric = useStudio((state) => state.setFabric)
+  const setCellFill = useStudio((state) => state.setCellFill)
+  const cycleCellFills = useStudio((state) => state.cycleCellFills)
   const setBoardTool = useStudio((state) => state.setBoardTool)
   const rotateCell = useStudio((state) => state.rotateCell)
   const clearCell = useStudio((state) => state.clearCell)
@@ -86,8 +89,19 @@ export default function LayoutPanel() {
   const selectedDesign = selectedPlacement
     ? designs.find((design) => design.id === selectedPlacement.designId)
     : undefined
+  const cellFill = selectedPlacement
+    ? selectedPlacement.fill === undefined
+      ? fill
+      : selectedPlacement.fill
+    : null
   const occupied = occupiedCount(board)
   const total = board.rows * board.cols
+
+  const setSelectedCellFill = (nextFill: string | undefined) => {
+    if (!selectedCell) return
+    const [row, col] = selectedCell.split(':').map(Number)
+    setCellFill(row, col, nextFill)
+  }
 
   const editSelected = () => {
     if (!selectedDesign) return
@@ -192,6 +206,14 @@ export default function LayoutPanel() {
           ))}
         </div>
         <FillColorRow />
+        <button
+          type="button"
+          className="btn btn-soft fill-cycle-btn"
+          onClick={cycleCellFills}
+          title="按调色盘顺序为每一格填不同颜色"
+        >
+          每格轮换填缝
+        </button>
       </div>
 
       <div className="layout-block">
@@ -243,48 +265,85 @@ export default function LayoutPanel() {
         {!selectedCell && (
           <p className="selected-empty">点毯子上的任意一格，可以旋转、清空或单独换一张。</p>
         )}
-        {selectedCell && selectedDesign && (
-          <div className="selected-card">
-            <DesignThumb
-              design={selectedDesign}
-              prefix={`cell-${selectedDesign.id}`}
-              className="cell-thumb"
-              backing={fill}
-            />
-            <div className="selected-meta">
-              <strong>{selectedDesign.name}</strong>
-              <span>旋转 {selectedPlacement?.rotation ?? 0}°</span>
+        {selectedCell && selectedDesign && selectedPlacement && (
+          <>
+            <div className="selected-card">
+              <DesignThumb
+                design={selectedDesign}
+                prefix={`cell-${selectedDesign.id}`}
+                className="cell-thumb"
+                backing={cellFill}
+              />
+              <div className="selected-meta">
+                <strong>{selectedDesign.name}</strong>
+                <span>旋转 {selectedPlacement.rotation}°</span>
+              </div>
+              <div className="selected-actions">
+                <button
+                  type="button"
+                  className="icon-btn bordered"
+                  onClick={rotateSelected}
+                  title="顺时针旋转 90°"
+                  aria-label="旋转选中格"
+                >
+                  <RotateCw size={15} />
+                </button>
+                <button
+                  type="button"
+                  className="icon-btn bordered danger"
+                  onClick={clearSelected}
+                  title="清空这一格"
+                  aria-label="清空选中格"
+                >
+                  <Trash2 size={15} />
+                </button>
+                <button
+                  type="button"
+                  className="icon-btn bordered"
+                  onClick={editSelected}
+                  title="在方格里编辑这张"
+                  aria-label="编辑这张方格"
+                >
+                  <Paintbrush size={15} />
+                </button>
+              </div>
             </div>
-            <div className="selected-actions">
-              <button
-                type="button"
-                className="icon-btn bordered"
-                onClick={rotateSelected}
-                title="顺时针旋转 90°"
-                aria-label="旋转选中格"
-              >
-                <RotateCw size={15} />
-              </button>
-              <button
-                type="button"
-                className="icon-btn bordered danger"
-                onClick={clearSelected}
-                title="清空这一格"
-                aria-label="清空选中格"
-              >
-                <Trash2 size={15} />
-              </button>
-              <button
-                type="button"
-                className="icon-btn bordered"
-                onClick={editSelected}
-                title="在方格里编辑这张"
-                aria-label="编辑这张方格"
-              >
-                <Paintbrush size={15} />
-              </button>
+
+            <div className="cell-fill">
+              <div className="sub-label">
+                <span>这一格填缝</span>
+                <span>{selectedPlacement.fill ?? '跟随整毯'}</span>
+              </div>
+              <div className="fill-row">
+                <button
+                  type="button"
+                  className={`fill-none${
+                    selectedPlacement.fill === undefined ? ' is-active' : ''
+                  }`}
+                  onClick={() => setSelectedCellFill(undefined)}
+                >
+                  跟随
+                </button>
+                {palette.map((color) => {
+                  const active =
+                    selectedPlacement.fill?.toUpperCase() === color.hex.toUpperCase()
+                  return (
+                    <button
+                      key={color.id}
+                      type="button"
+                      className={`fill-dot${active ? ' is-active' : ''}`}
+                      style={{ background: color.hex }}
+                      title={`这一格填缝 ${color.name} ${color.hex}`}
+                      aria-label={`这一格填缝 ${color.name} ${color.hex}`}
+                      aria-pressed={active}
+                      onClick={() => setSelectedCellFill(color.hex)}
+                    />
+                  )
+                })}
+              </div>
+              <p className="micro-hint">接缝仍用整毯填缝色；这里只改这一格内部。</p>
             </div>
-          </div>
+          </>
         )}
         {selectedCell && !selectedDesign && (
           <div className="selected-card empty-cell-card">

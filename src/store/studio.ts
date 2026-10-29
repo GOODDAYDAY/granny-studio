@@ -92,6 +92,8 @@ interface StudioState {
   setGap: (gap: number) => void
   setFabric: (hex: Hex) => void
   setFill: (hex: Hex | null) => void
+  setCellFill: (row: number, col: number, fill: Hex | undefined) => void
+  cycleCellFills: () => void
   setBoardTool: (tool: BoardTool) => void
   selectCell: (row: number, col: number) => void
   assignCell: (row: number, col: number) => void
@@ -385,6 +387,43 @@ export const useStudio = create<StudioState>()((set, get) => {
       })
     },
 
+    setCellFill: (row, col, fill) => {
+      const key = `${row}:${col}`
+      const placement = get().project.board.cells[key]
+      if (!placement) return
+      if (fill === undefined) {
+        if (placement.fill === undefined) return
+        commit((draft) => {
+          const cell = draft.board.cells[key]
+          if (cell) delete cell.fill
+        })
+        return
+      }
+      const normalized = normalizeHex(fill)
+      if (!normalized || placement.fill === normalized) return
+      commit((draft) => {
+        const cell = draft.board.cells[key]
+        if (cell) cell.fill = normalized
+      })
+    },
+
+    cycleCellFills: () => {
+      const palette = get().project.palette
+      if (palette.length === 0) return
+      if (Object.keys(get().project.board.cells).length === 0) return
+      commit((draft) => {
+        let index = 0
+        for (let row = 0; row < draft.board.rows; row += 1) {
+          for (let col = 0; col < draft.board.cols; col += 1) {
+            const cell = draft.board.cells[`${row}:${col}`]
+            if (!cell) continue
+            cell.fill = palette[index % palette.length].hex
+            index += 1
+          }
+        }
+      })
+    },
+
     setBoardTool: (boardTool) => set({ boardTool }),
 
     selectCell: (row, col) => set({ selectedCell: `${row}:${col}` }),
@@ -413,8 +452,16 @@ export const useStudio = create<StudioState>()((set, get) => {
         set({ selectedCell: key })
         return
       }
+      const previousFill = existing?.fill
       commit((draft) => {
-        draft.board = assignBoardCell(draft.board, row, col, activeDesignId, 0)
+        draft.board = assignBoardCell(
+          draft.board,
+          row,
+          col,
+          activeDesignId,
+          0,
+          previousFill,
+        )
       })
       set({ selectedCell: key })
     },

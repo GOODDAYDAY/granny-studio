@@ -34,6 +34,8 @@ export interface SquareDesign {
 export interface Placement {
   designId: string
   rotation: Rotation
+  /** Per-cell fill override. Undefined means "use the project default". */
+  fill?: Hex
 }
 
 export interface Board {
