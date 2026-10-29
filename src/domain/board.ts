@@ -41,16 +41,13 @@ export function assignCell(
   col: number,
   designId: string,
   rotation: Rotation = 0,
-  fill?: Hex,
 ): Board {
   if (!isInBounds(board, row, col)) return board
-  const placement: Placement = { designId, rotation }
-  if (fill !== undefined) placement.fill = fill
   return {
     ...board,
     cells: {
       ...board.cells,
-      [cellKey(row, col)]: placement,
+      [cellKey(row, col)]: { designId, rotation },
     },
   }
 }
@@ -103,11 +100,7 @@ export function fillBoard(board: Board, designId: string): Board {
   const cells: Record<string, Placement> = {}
   for (let row = 0; row < board.rows; row += 1) {
     for (let col = 0; col < board.cols; col += 1) {
-      const key = cellKey(row, col)
-      const existing = board.cells[key]
-      const placement: Placement = { designId, rotation: 0 }
-      if (existing?.fill !== undefined) placement.fill = existing.fill
-      cells[key] = placement
+      cells[cellKey(row, col)] = { designId, rotation: 0 }
     }
   }
   return { ...board, cells }
@@ -122,12 +115,8 @@ export function cycleDesigns(board: Board, designIds: string[]): Board {
   const cells: Record<string, Placement> = {}
   for (let row = 0; row < board.rows; row += 1) {
     for (let col = 0; col < board.cols; col += 1) {
-      const key = cellKey(row, col)
       const designId = designIds[(row * board.cols + col) % designIds.length]
-      const placement: Placement = { designId, rotation: 0 }
-      const existing = board.cells[key]
-      if (existing?.fill !== undefined) placement.fill = existing.fill
-      cells[key] = placement
+      cells[cellKey(row, col)] = { designId, rotation: 0 }
     }
   }
   return { ...board, cells }

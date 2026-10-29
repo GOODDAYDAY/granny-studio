@@ -8,7 +8,6 @@ export default function BoardStage() {
   const board = useStudio((state) => state.project.board)
   const designs = useStudio((state) => state.project.designs)
   const selectedCell = useStudio((state) => state.selectedCell)
-  const fill = useStudio((state) => state.project.fill ?? null)
   const activeDesign = useStudio((state) =>
     state.project.designs.find((item) => item.id === state.activeDesignId),
   )
@@ -80,7 +79,6 @@ export default function BoardStage() {
           designs={designs}
           selectedCell={selectedCell}
           interactive
-          backing={fill}
           idPrefix="board"
           className="board-art"
           onCellDown={(row, col) => {

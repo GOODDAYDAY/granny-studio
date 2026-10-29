@@ -4,6 +4,8 @@ export type PuffPlacement = 'inner' | 'outer'
 
 export type LayerId = 'center' | 'puff' | 'background' | 'border'
 
+export type GapLayer = 'center' | 'inner' | 'mid' | 'outer'
+
 export type Rotation = 0 | 90 | 180 | 270
 
 export type Mode = 'square' | 'board'
@@ -26,6 +28,8 @@ export interface SquareDesign {
   name: string
   patternId: string
   colors: Record<string, Hex>
+  /** Negative-space colors between the concentric layers, inside this square. */
+  gaps: Record<GapLayer, Hex>
   puffPlacement: PuffPlacement
   createdAt: number
   updatedAt: number
@@ -34,8 +38,6 @@ export interface SquareDesign {
 export interface Placement {
   designId: string
   rotation: Rotation
-  /** Per-cell fill override. Undefined means "use the project default". */
-  fill?: Hex
 }
 
 export interface Board {
@@ -53,6 +55,4 @@ export interface Project {
   palette: PaletteColor[]
   designs: SquareDesign[]
   board: Board
-  /** Color for the negative space between tiles and inside each square. */
-  fill: Hex | null
 }

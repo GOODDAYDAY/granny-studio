@@ -1,5 +1,4 @@
 import { ColorDefs, FlowerShapes } from './FlowerSvg'
-import { isDark } from '../domain/color'
 import { FLOWER_VIEW_BOX, FLOWER_VIEW_SIZE } from '../domain/geometry'
 import type { Board, SquareDesign } from '../domain/types'
 
@@ -8,7 +7,6 @@ export interface BoardSvgProps {
   designs: SquareDesign[]
   selectedCell?: string | null
   interactive?: boolean
-  backing?: string | null
   onCellDown?: (row: number, col: number) => void
   onCellEnter?: (row: number, col: number) => void
   onCellContext?: (row: number, col: number) => void
@@ -21,7 +19,6 @@ export default function BoardSvg({
   designs,
   selectedCell = null,
   interactive = false,
-  backing = null,
   onCellDown,
   onCellEnter,
   onCellContext,
@@ -39,13 +36,6 @@ export default function BoardSvg({
   const fabricInset = pad * 0.3
   const fabricWidth = width - fabricInset * 2
   const fabricHeight = height - fabricInset * 2
-  const gridWidth = board.cols * tile + Math.max(0, board.cols - 1) * gap
-  const gridHeight = board.rows * tile + Math.max(0, board.rows - 1) * gap
-  const seamStitch = backing
-    ? isDark(backing)
-      ? 'rgba(255,248,236,.26)'
-      : 'rgba(52,34,20,.2)'
-    : 'rgba(52,34,20,.2)'
 
   const positions: { row: number; col: number; x: number; y: number }[] = []
   for (let row = 0; row < board.rows; row += 1) {
@@ -142,62 +132,15 @@ export default function BoardSvg({
           strokeWidth={0.055}
         />
 
-        {backing && (
-          <>
-            <rect x={pad} y={pad} width={gridWidth} height={gridHeight} fill={backing} />
-            {Array.from({ length: Math.max(0, board.cols - 1) }, (_, index) => {
-              const x = pad + (index + 1) * tile + index * gap + gap / 2
-              return (
-                <line
-                  key={`seam-v-${index}`}
-                  x1={x}
-                  y1={pad}
-                  x2={x}
-                  y2={pad + gridHeight}
-                  stroke={seamStitch}
-                  strokeWidth={0.035}
-                  strokeDasharray=".14 .12"
-                />
-              )
-            })}
-            {Array.from({ length: Math.max(0, board.rows - 1) }, (_, index) => {
-              const y = pad + (index + 1) * tile + index * gap + gap / 2
-              return (
-                <line
-                  key={`seam-h-${index}`}
-                  x1={pad}
-                  y1={y}
-                  x2={pad + gridWidth}
-                  y2={y}
-                  stroke={seamStitch}
-                  strokeWidth={0.035}
-                  strokeDasharray=".14 .12"
-                />
-              )
-            })}
-          </>
-        )}
-
         {positions.map(({ row, col, x, y }) => {
           const placement = board.cells[`${row}:${col}`]
           const design = placement ? designMap.get(placement.designId) : undefined
           if (!placement || !design) return null
-          const cellFill = placement.fill === undefined ? backing : placement.fill
           return (
             <g
               key={`tile-${row}-${col}`}
               transform={`translate(${x + tile / 2} ${y + tile / 2}) rotate(${placement.rotation})`}
             >
-              {cellFill && (
-                <rect
-                  x={-4.55}
-                  y={-4.55}
-                  width={9.1}
-                  height={9.1}
-                  rx={0.55}
-                  fill={cellFill}
-                />
-              )}
               <use
                 href={`#${idPrefix}-sq-${design.id}`}
                 x={-tile / 2}

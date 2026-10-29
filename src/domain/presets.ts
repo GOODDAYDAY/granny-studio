@@ -90,6 +90,5 @@ export function createDemoProject(): Project {
     palette: makePalette(),
     designs,
     board,
-    fill: null,
   }
 }

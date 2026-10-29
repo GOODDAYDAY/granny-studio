@@ -4,6 +4,17 @@ export const FLOWER_VIEW_SIZE = 9.2
 export const FLOWER_HALF = FLOWER_VIEW_SIZE / 2
 export const FLOWER_VIEW_BOX = `${-FLOWER_HALF} ${-FLOWER_HALF} ${FLOWER_VIEW_SIZE} ${FLOWER_VIEW_SIZE}`
 
+export const GAP_CENTER_RADIUS = 1.7
+export const GAP_INNER_RADIUS = 3
+export const GAP_MID_RADIUS = 3.5
+export const GAP_OUTER_RECT = {
+  x: -4.55,
+  y: -4.55,
+  width: 9.1,
+  height: 9.1,
+  rx: 0.55,
+}
+
 const RAD = Math.PI / 180
 
 export interface RadialPiece {

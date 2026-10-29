@@ -19,12 +19,14 @@ import {
   makeId,
   renameDesign as renameDesignEntity,
   rotateLayerColors,
+  setGapColor as setGapColorEntity,
   setPuffPlacement as setPuffPlacementEntity,
   setRegionColor,
   shuffleLayerColors,
 } from '../domain/design'
 import { createDemoProject } from '../domain/presets'
 import type {
+  GapLayer,
   Hex,
   LayerId,
   Mode,
@@ -75,9 +77,11 @@ interface StudioState {
   selectDesign: (id: string) => void
   addDesign: () => void
   duplicateDesign: (id: string) => void
+  duplicateDesignForCell: (row: number, col: number) => void
   deleteDesign: (id: string) => void
   renameDesign: (id: string, name: string) => void
   setPuffPlacement: (placement: PuffPlacement) => void
+  setGapColor: (layer: GapLayer) => void
 
   selectColor: (hex: Hex) => void
   addPaletteColor: (hex: Hex, source?: PaletteColor['source']) => void
@@ -90,10 +94,6 @@ interface StudioState {
 
   setBoardSize: (rows: number, cols: number) => void
   setGap: (gap: number) => void
-  setFabric: (hex: Hex) => void
-  setFill: (hex: Hex | null) => void
-  setCellFill: (row: number, col: number, fill: Hex | undefined) => void
-  cycleCellFills: () => void
   setBoardTool: (tool: BoardTool) => void
   selectCell: (row: number, col: number) => void
   assignCell: (row: number, col: number) => void
@@ -215,6 +215,7 @@ export const useStudio = create<StudioState>()((set, get) => {
           border: baseColors[0],
         },
         puffPlacement: source?.puffPlacement ?? 'outer',
+        gaps: source?.gaps,
       })
       commit((draft) => {
         draft.designs.push(design)
@@ -230,6 +231,27 @@ export const useStudio = create<StudioState>()((set, get) => {
         draft.designs.push(copy)
       })
       set({ activeDesignId: copy.id })
+    },
+
+    duplicateDesignForCell: (row, col) => {
+      const placement = get().project.board.cells[`${row}:${col}`]
+      if (!placement) return
+      const source = get().project.designs.find(
+        (design) => design.id === placement.designId,
+      )
+      if (!source) return
+      const copy = duplicateDesignEntity(source, `${source.name} · 单格`)
+      commit((draft) => {
+        draft.designs.push(copy)
+        draft.board = assignBoardCell(
+          draft.board,
+          row,
+          col,
+          copy.id,
+          placement.rotation,
+        )
+      })
+      set({ activeDesignId: copy.id, mode: 'square' })
     },
 
     deleteDesign: (id) => {
@@ -264,6 +286,12 @@ export const useStudio = create<StudioState>()((set, get) => {
       const source = activeDesign()
       if (!source) return
       replaceActiveDesign(setPuffPlacementEntity(source, placement))
+    },
+
+    setGapColor: (layer) => {
+      const source = activeDesign()
+      if (!source) return
+      replaceActiveDesign(setGapColorEntity(source, layer, get().activeColor))
     },
 
     selectColor: (hex) => {
@@ -363,67 +391,6 @@ export const useStudio = create<StudioState>()((set, get) => {
       })
     },
 
-    setFabric: (hex) => {
-      const normalized = normalizeHex(hex)
-      if (!normalized || normalized === get().project.board.fabric) return
-      commit((draft) => {
-        draft.board.fabric = normalized
-      })
-    },
-
-    setFill: (hex) => {
-      const current = get().project.fill ?? null
-      if (hex === null) {
-        if (current === null) return
-        commit((draft) => {
-          draft.fill = null
-        })
-        return
-      }
-      const normalized = normalizeHex(hex)
-      if (!normalized || normalized === current) return
-      commit((draft) => {
-        draft.fill = normalized
-      })
-    },
-
-    setCellFill: (row, col, fill) => {
-      const key = `${row}:${col}`
-      const placement = get().project.board.cells[key]
-      if (!placement) return
-      if (fill === undefined) {
-        if (placement.fill === undefined) return
-        commit((draft) => {
-          const cell = draft.board.cells[key]
-          if (cell) delete cell.fill
-        })
-        return
-      }
-      const normalized = normalizeHex(fill)
-      if (!normalized || placement.fill === normalized) return
-      commit((draft) => {
-        const cell = draft.board.cells[key]
-        if (cell) cell.fill = normalized
-      })
-    },
-
-    cycleCellFills: () => {
-      const palette = get().project.palette
-      if (palette.length === 0) return
-      if (Object.keys(get().project.board.cells).length === 0) return
-      commit((draft) => {
-        let index = 0
-        for (let row = 0; row < draft.board.rows; row += 1) {
-          for (let col = 0; col < draft.board.cols; col += 1) {
-            const cell = draft.board.cells[`${row}:${col}`]
-            if (!cell) continue
-            cell.fill = palette[index % palette.length].hex
-            index += 1
-          }
-        }
-      })
-    },
-
     setBoardTool: (boardTool) => set({ boardTool }),
 
     selectCell: (row, col) => set({ selectedCell: `${row}:${col}` }),
@@ -452,16 +419,8 @@ export const useStudio = create<StudioState>()((set, get) => {
         set({ selectedCell: key })
         return
       }
-      const previousFill = existing?.fill
       commit((draft) => {
-        draft.board = assignBoardCell(
-          draft.board,
-          row,
-          col,
-          activeDesignId,
-          0,
-          previousFill,
-        )
+        draft.board = assignBoardCell(draft.board, row, col, activeDesignId, 0)
       })
       set({ selectedCell: key })
     },

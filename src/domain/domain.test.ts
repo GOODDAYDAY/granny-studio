@@ -19,12 +19,20 @@ import {
   getLayerColors,
   isLayerUniform,
   rotateLayerColors,
+  setGapColor,
   setPuffPlacement,
   setRegionColor,
   shuffleLayerColors,
 } from './design'
 import { flowerGeometry } from './geometry'
-import { FLOWER_REGIONS, LAYERS, makeLayerColors, regionsOfLayer } from './patterns'
+import {
+  DEFAULT_GAP_COLORS,
+  FLOWER_REGIONS,
+  GAP_LAYERS,
+  LAYERS,
+  makeLayerColors,
+  regionsOfLayer,
+} from './patterns'
 import { createDemoProject, makePresetDesigns } from './presets'
 import { isValidProject } from '../store/persist'
 import type { LayerId, Project } from './types'
@@ -51,6 +59,7 @@ describe('flower pattern', () => {
     expect(FLOWER_REGIONS).toHaveLength(46)
     expect(new Set(FLOWER_REGIONS.map((region) => region.id)).size).toBe(46)
     expect(LAYERS).toHaveLength(4)
+    expect(GAP_LAYERS).toHaveLength(4)
   })
 
   it('maps layer colors to every region', () => {
@@ -82,6 +91,7 @@ describe('flower pattern', () => {
 describe('design operations', () => {
   it('creates a complete design', () => {
     expect(Object.keys(design.colors)).toHaveLength(46)
+    expect(design.gaps).toEqual(DEFAULT_GAP_COLORS)
     expect(getLayerColors(design)).toEqual([
       '#112233',
       '#223344',
@@ -91,6 +101,13 @@ describe('design operations', () => {
     for (const layer of LAYERS) {
       expect(isLayerUniform(design, layer.id)).toBe(true)
     }
+  })
+
+  it('recolors one gap layer only', () => {
+    const next = setGapColor(design, 'inner', '#ABCDEF')
+    expect(next.gaps.inner).toBe('#ABCDEF')
+    expect(next.gaps.center).toBe(DEFAULT_GAP_COLORS.center)
+    expect(next.gaps.outer).toBe(DEFAULT_GAP_COLORS.outer)
   })
 
   it('paints one region without touching the rest of the layer', () => {
@@ -134,6 +151,8 @@ describe('design operations', () => {
     expect(copy.id).not.toBe(design.id)
     expect(copy.colors).toEqual(design.colors)
     expect(copy.colors).not.toBe(design.colors)
+    expect(copy.gaps).toEqual(design.gaps)
+    expect(copy.gaps).not.toBe(design.gaps)
   })
 })
 
@@ -175,22 +194,6 @@ describe('board operations', () => {
     expect(cycled.cells['1:1'].designId).toBe('y')
   })
 
-  it('keeps per-cell fill colors through design changes', () => {
-    let board = createBoard(2, 2)
-    board = assignCell(board, 0, 0, 'a', 0, '#112233')
-    expect(board.cells['0:0'].fill).toBe('#112233')
-
-    board = rotateCell(board, 0, 0)
-    expect(board.cells['0:0'].fill).toBe('#112233')
-
-    const filled = fillBoard(board, 'z')
-    expect(filled.cells['0:0'].fill).toBe('#112233')
-
-    const cycled = cycleDesigns(filled, ['x', 'y'])
-    expect(cycled.cells['0:0'].fill).toBe('#112233')
-    expect(cycled.cells['0:1'].fill).toBeUndefined()
-  })
-
   it('clamps dimensions', () => {
     const board = resizeBoard(createBoard(2, 2), 99, 0)
     expect(board.rows).toBe(24)
@@ -205,10 +208,10 @@ describe('demo project', () => {
     expect(project.board.rows).toBe(2)
     expect(project.board.cols).toBe(2)
     expect(occupiedCount(project.board)).toBe(4)
-    expect(project.fill).toBeNull()
     expect(project.palette.length).toBeGreaterThanOrEqual(4)
     for (const item of project.designs) {
       expect(Object.keys(item.colors)).toHaveLength(46)
+      expect(item.gaps).toEqual(DEFAULT_GAP_COLORS)
       for (const layer of LAYERS) {
         expect(isLayerUniform(item, layer.id)).toBe(true)
       }

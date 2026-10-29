@@ -10,10 +10,8 @@ import {
   MAX_BOARD_DIM,
   occupiedCount,
 } from '../domain/board'
-import { FABRIC_SWATCHES } from '../domain/presets'
 import { useStudio } from '../store/studio'
 import DesignThumb from './DesignThumb'
-import FillColorRow from './FillColorRow'
 
 const PRESETS = [
   { label: '2 × 2', rows: 2, cols: 2 },
@@ -67,14 +65,9 @@ export default function LayoutPanel() {
     state.project.designs.find((item) => item.id === state.activeDesignId),
   )
   const selectedCell = useStudio((state) => state.selectedCell)
-  const fill = useStudio((state) => state.project.fill ?? null)
-  const palette = useStudio((state) => state.project.palette)
   const boardTool = useStudio((state) => state.boardTool)
   const setBoardSize = useStudio((state) => state.setBoardSize)
   const setGap = useStudio((state) => state.setGap)
-  const setFabric = useStudio((state) => state.setFabric)
-  const setCellFill = useStudio((state) => state.setCellFill)
-  const cycleCellFills = useStudio((state) => state.cycleCellFills)
   const setBoardTool = useStudio((state) => state.setBoardTool)
   const rotateCell = useStudio((state) => state.rotateCell)
   const clearCell = useStudio((state) => state.clearCell)
@@ -83,24 +76,20 @@ export default function LayoutPanel() {
   const cycleBoard = useStudio((state) => state.cycleBoard)
   const clearBoard = useStudio((state) => state.clearBoard)
   const selectDesign = useStudio((state) => state.selectDesign)
+  const duplicateDesignForCell = useStudio((state) => state.duplicateDesignForCell)
   const setMode = useStudio((state) => state.setMode)
 
   const selectedPlacement = selectedCell ? board.cells[selectedCell] : undefined
   const selectedDesign = selectedPlacement
     ? designs.find((design) => design.id === selectedPlacement.designId)
     : undefined
-  const cellFill = selectedPlacement
-    ? selectedPlacement.fill === undefined
-      ? fill
-      : selectedPlacement.fill
-    : null
   const occupied = occupiedCount(board)
   const total = board.rows * board.cols
 
-  const setSelectedCellFill = (nextFill: string | undefined) => {
+  const copyForCell = () => {
     if (!selectedCell) return
     const [row, col] = selectedCell.split(':').map(Number)
-    setCellFill(row, col, nextFill)
+    duplicateDesignForCell(row, col)
   }
 
   const editSelected = () => {
@@ -173,8 +162,8 @@ export default function LayoutPanel() {
 
       <div className="layout-block">
         <div className="layout-block-head">
-          <span>填缝 / 底布</span>
-          <span className="micro-hint">间距 {Math.round(board.gap * 100)}%</span>
+          <span>格间距</span>
+          <span className="micro-hint">{Math.round(board.gap * 100)}%</span>
         </div>
         <input
           className="range"
@@ -186,34 +175,7 @@ export default function LayoutPanel() {
           onChange={(event) => setGap(Number(event.target.value))}
           aria-label="方格间距"
         />
-        <div className="sub-label">
-          <span>底布</span>
-          <span>{board.fabric.toUpperCase()}</span>
-        </div>
-        <div className="fabric-row">
-          {FABRIC_SWATCHES.map((fabric) => (
-            <button
-              key={fabric}
-              type="button"
-              className={`fabric-swatch${
-                board.fabric.toUpperCase() === fabric.toUpperCase() ? ' is-active' : ''
-              }`}
-              style={{ background: fabric }}
-              onClick={() => setFabric(fabric)}
-              aria-label={`底布颜色 ${fabric}`}
-              title={fabric}
-            />
-          ))}
-        </div>
-        <FillColorRow />
-        <button
-          type="button"
-          className="btn btn-soft fill-cycle-btn"
-          onClick={cycleCellFills}
-          title="按调色盘顺序为每一格填不同颜色"
-        >
-          每格轮换填缝
-        </button>
+        <p className="micro-hint">只控制方格之间的空隙；颜色都在方格内部编辑。</p>
       </div>
 
       <div className="layout-block">
@@ -272,7 +234,6 @@ export default function LayoutPanel() {
                 design={selectedDesign}
                 prefix={`cell-${selectedDesign.id}`}
                 className="cell-thumb"
-                backing={cellFill}
               />
               <div className="selected-meta">
                 <strong>{selectedDesign.name}</strong>
@@ -309,40 +270,12 @@ export default function LayoutPanel() {
               </div>
             </div>
 
-            <div className="cell-fill">
-              <div className="sub-label">
-                <span>这一格填缝</span>
-                <span>{selectedPlacement.fill ?? '跟随整毯'}</span>
-              </div>
-              <div className="fill-row">
-                <button
-                  type="button"
-                  className={`fill-none${
-                    selectedPlacement.fill === undefined ? ' is-active' : ''
-                  }`}
-                  onClick={() => setSelectedCellFill(undefined)}
-                >
-                  跟随
-                </button>
-                {palette.map((color) => {
-                  const active =
-                    selectedPlacement.fill?.toUpperCase() === color.hex.toUpperCase()
-                  return (
-                    <button
-                      key={color.id}
-                      type="button"
-                      className={`fill-dot${active ? ' is-active' : ''}`}
-                      style={{ background: color.hex }}
-                      title={`这一格填缝 ${color.name} ${color.hex}`}
-                      aria-label={`这一格填缝 ${color.name} ${color.hex}`}
-                      aria-pressed={active}
-                      onClick={() => setSelectedCellFill(color.hex)}
-                    />
-                  )
-                })}
-              </div>
-              <p className="micro-hint">接缝仍用整毯填缝色；这里只改这一格内部。</p>
-            </div>
+            <button type="button" className="text-btn cell-copy-btn" onClick={copyForCell}>
+              复制一张，只改这一格
+            </button>
+            <p className="micro-hint">
+              会新建一张独立方格并替换这一格；它的四层间隙可以单独配色，其它格不受影响。
+            </p>
           </>
         )}
         {selectedCell && !selectedDesign && (

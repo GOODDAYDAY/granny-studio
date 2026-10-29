@@ -1,9 +1,16 @@
 import { useMemo, useRef } from 'react'
 import type { PointerEvent as ReactPointerEvent, ReactNode } from 'react'
 import { adjustLightness } from '../domain/color'
-import { flowerGeometry } from '../domain/geometry'
+import {
+  flowerGeometry,
+  GAP_CENTER_RADIUS,
+  GAP_INNER_RADIUS,
+  GAP_MID_RADIUS,
+  GAP_OUTER_RECT,
+} from '../domain/geometry'
 import type { FlowerGeometry, RadialPiece } from '../domain/geometry'
-import type { LayerId, SquareDesign } from '../domain/types'
+import { DEFAULT_GAP_COLORS, GAP_LAYERS } from '../domain/patterns'
+import type { GapLayer, LayerId, SquareDesign } from '../domain/types'
 
 const LAYER_LABELS: Record<LayerId, string> = {
   center: '花心',
@@ -44,11 +51,6 @@ export function ColorDefs({ design, prefix }: { design: SquareDesign; prefix: st
         <path d="M0 .02 H.09" stroke="#2A1A0F" strokeOpacity=".055" strokeWidth=".011" />
         <path d="M0 .058 H.09" stroke="#FFF8EC" strokeOpacity=".065" strokeWidth=".008" />
       </pattern>
-      <radialGradient id={`${prefix}-hole`} cx="50%" cy="42%" r="62%">
-        <stop offset="0%" stopColor="#3A2719" stopOpacity=".82" />
-        <stop offset="62%" stopColor="#3A2719" stopOpacity=".46" />
-        <stop offset="100%" stopColor="#3A2719" stopOpacity=".14" />
-      </radialGradient>
     </>
   )
 }
@@ -365,13 +367,106 @@ function radialElement(
   )
 }
 
+interface GapBackingProps {
+  design: SquareDesign
+  interactive: boolean
+  onPaintGap?: (layer: GapLayer) => void
+}
+
+function GapBacking({ design, interactive, onPaintGap }: GapBackingProps) {
+  const gaps = { ...DEFAULT_GAP_COLORS, ...(design.gaps ?? {}) }
+  const metaById = new Map(GAP_LAYERS.map((layer) => [layer.id, layer]))
+  const pointerEvents = interactive ? 'all' : 'none'
+  const layers: { id: GapLayer; shape: ReactNode }[] = [
+    {
+      id: 'outer',
+      shape: (
+        <rect
+          {...GAP_OUTER_RECT}
+          fill={gaps.outer}
+          pointerEvents={pointerEvents}
+        />
+      ),
+    },
+    {
+      id: 'mid',
+      shape: (
+        <circle
+          cx={0}
+          cy={0}
+          r={GAP_MID_RADIUS}
+          fill={gaps.mid}
+          pointerEvents={pointerEvents}
+        />
+      ),
+    },
+    {
+      id: 'inner',
+      shape: (
+        <circle
+          cx={0}
+          cy={0}
+          r={GAP_INNER_RADIUS}
+          fill={gaps.inner}
+          pointerEvents={pointerEvents}
+        />
+      ),
+    },
+    {
+      id: 'center',
+      shape: (
+        <circle
+          cx={0}
+          cy={0}
+          r={GAP_CENTER_RADIUS}
+          fill={gaps.center}
+          pointerEvents={pointerEvents}
+        />
+      ),
+    },
+  ]
+
+  return (
+    <>
+      {layers.map(({ id, shape }) => {
+        const meta = metaById.get(id)
+        const label = `${meta?.name ?? id}间隙`
+        return (
+          <g
+            key={id}
+            className="gap-layer"
+            data-gap={id}
+            role={interactive ? 'button' : undefined}
+            tabIndex={interactive ? 0 : undefined}
+            aria-label={interactive ? label : undefined}
+            pointerEvents={pointerEvents}
+            onKeyDown={
+              interactive
+                ? (event) => {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                      event.preventDefault()
+                      onPaintGap?.(id)
+                    }
+                  }
+                : undefined
+            }
+          >
+            {interactive && <title>{label}</title>}
+            {shape}
+          </g>
+        )
+      })}
+    </>
+  )
+}
+
 export interface FlowerShapesProps {
   design: SquareDesign
   prefix: string
   detail?: boolean
   interactive?: boolean
-  backing?: string | null
   onPaint?: (regionId: string) => void
+  onPaintGap?: (layer: GapLayer) => void
 }
 
 export function FlowerShapes({
@@ -379,8 +474,8 @@ export function FlowerShapes({
   prefix,
   detail = true,
   interactive = false,
-  backing = null,
   onPaint,
+  onPaintGap,
 }: FlowerShapesProps) {
   const geometry = useMemo(() => flowerGeometry(design.puffPlacement), [design.puffPlacement])
   const colors = useMemo(() => uniqueDesignColors(design), [design])
@@ -390,17 +485,11 @@ export function FlowerShapes({
 
   return (
     <g className="flower-root">
-      {backing && (
-        <rect
-          x={-4.55}
-          y={-4.55}
-          width={9.1}
-          height={9.1}
-          rx={0.55}
-          fill={backing}
-          pointerEvents="none"
-        />
-      )}
+      <GapBacking
+        design={design}
+        interactive={interactive}
+        onPaintGap={onPaintGap}
+      />
 
       {geometry.border.map((piece) => {
         const color = design.colors[piece.regionId] ?? colors[0]
@@ -458,24 +547,6 @@ export function FlowerShapes({
           onPaint,
         ),
       )}
-
-      <circle
-        cx={0}
-        cy={0}
-        r={geometry.centerHole.radius}
-        fill={`url(#${prefix}-hole)`}
-        pointerEvents="none"
-      />
-      {geometry.cornerHoles.map((hole, index) => (
-        <circle
-          key={`corner-${index}`}
-          cx={hole.cx}
-          cy={hole.cy}
-          r={hole.radius}
-          fill={`url(#${prefix}-hole)`}
-          pointerEvents="none"
-        />
-      ))}
     </g>
   )
 }
@@ -484,8 +555,8 @@ export interface FlowerSvgProps {
   design: SquareDesign
   prefix: string
   interactive?: boolean
-  backing?: string | null
   onPaint?: (regionId: string) => void
+  onPaintGap?: (layer: GapLayer) => void
   className?: string
 }
 
@@ -493,8 +564,8 @@ export default function FlowerSvg({
   design,
   prefix,
   interactive = false,
-  backing = null,
   onPaint,
+  onPaintGap,
   className,
 }: FlowerSvgProps) {
   const svgRef = useRef<SVGSVGElement>(null)
@@ -502,6 +573,12 @@ export default function FlowerSvg({
   const geometry = useMemo(() => flowerGeometry(design.puffPlacement), [design.puffPlacement])
 
   const paintAtTarget = (target: Element | null) => {
+    const gap = target?.closest('[data-gap]')
+    if (gap) {
+      const layer = gap.getAttribute('data-gap') as GapLayer | null
+      if (layer) onPaintGap?.(layer)
+      return
+    }
     const region = target?.closest('[data-region]')
     const id = region?.getAttribute('data-region')
     if (id) onPaint?.(id)
@@ -510,8 +587,8 @@ export default function FlowerSvg({
   const handlePointerDown = (event: ReactPointerEvent<SVGSVGElement>) => {
     if (!interactive) return
     const target = event.target as Element | null
-    const region = target?.closest('[data-region]')
-    if (!region) return
+    const paintable = target?.closest('[data-region], [data-gap]')
+    if (!paintable) return
     event.preventDefault()
     painting.current = true
     svgRef.current?.setPointerCapture(event.pointerId)
@@ -550,9 +627,9 @@ export default function FlowerSvg({
       <FlowerShapes
         design={design}
         prefix={prefix}
-        backing={backing}
         interactive={interactive}
         onPaint={onPaint}
+        onPaintGap={onPaintGap}
       />
     </svg>
   )

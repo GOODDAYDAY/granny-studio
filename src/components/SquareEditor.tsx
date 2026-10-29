@@ -10,8 +10,8 @@ export default function SquareEditor() {
     state.project.designs.find((item) => item.id === state.activeDesignId),
   )
   const activeColor = useStudio((state) => state.activeColor)
-  const fill = useStudio((state) => state.project.fill ?? null)
   const paintRegion = useStudio((state) => state.paintRegion)
+  const setGapColor = useStudio((state) => state.setGapColor)
   const renameDesign = useStudio((state) => state.renameDesign)
   const undo = useStudio((state) => state.undo)
   const redo = useStudio((state) => state.redo)
@@ -96,13 +96,13 @@ export default function SquareEditor() {
             design={design}
             prefix="editor"
             interactive
-            backing={fill}
             onPaint={paintRegion}
+            onPaintGap={setGapColor}
           />
         </div>
         <div className="stage-hint">
           <span className="hint-dot" style={{ background: activeColor }} />
-          当前 {describeColor(activeColor)} · 点任意一瓣上色，右侧可以整层填
+          当前 {describeColor(activeColor)} · 点花瓣上色，点空隙上间隙色
         </div>
       </div>
     </>
