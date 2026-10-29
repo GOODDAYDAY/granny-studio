@@ -47,12 +47,12 @@ const design = createDesign({
 
 describe('flower pattern', () => {
   it('has the expected regions', () => {
-    expect(regionsOfLayer('center')).toHaveLength(4)
+    expect(regionsOfLayer('center')).toHaveLength(6)
     expect(regionsOfLayer('puff')).toHaveLength(8)
     expect(regionsOfLayer('background')).toHaveLength(12)
     expect(regionsOfLayer('border')).toHaveLength(16)
-    expect(FLOWER_REGIONS).toHaveLength(40)
-    expect(new Set(FLOWER_REGIONS.map((region) => region.id)).size).toBe(40)
+    expect(FLOWER_REGIONS).toHaveLength(42)
+    expect(new Set(FLOWER_REGIONS.map((region) => region.id)).size).toBe(42)
     expect(LAYERS).toHaveLength(4)
   })
 
@@ -63,9 +63,9 @@ describe('flower pattern', () => {
     }
   })
 
-  it('builds the 4 / 8 / 12 / 16 cluster square from the reference svg', () => {
+  it('builds the 6 / 8 / 12 / 16 cluster square from the reference photo', () => {
     const geometry = flowerGeometry()
-    expect(geometry.center).toHaveLength(4)
+    expect(geometry.center).toHaveLength(6)
     expect(geometry.inner).toHaveLength(8)
     expect(geometry.outer).toHaveLength(12)
     expect(geometry.border).toHaveLength(16)
@@ -82,7 +82,7 @@ describe('flower pattern', () => {
 
 describe('design operations', () => {
   it('creates a complete design', () => {
-    expect(Object.keys(design.colors)).toHaveLength(40)
+    expect(Object.keys(design.colors)).toHaveLength(42)
     expect(getLayerColors(design)).toEqual([
       '#112233',
       '#223344',
@@ -194,7 +194,7 @@ describe('demo project', () => {
     expect(occupiedCount(project.board)).toBe(4)
     expect(project.palette.length).toBeGreaterThanOrEqual(8)
     for (const item of project.designs) {
-      expect(Object.keys(item.colors)).toHaveLength(40)
+      expect(Object.keys(item.colors)).toHaveLength(42)
       for (const layer of LAYERS) {
         expect(isLayerUniform(item, layer.id)).toBe(true)
       }

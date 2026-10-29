@@ -54,12 +54,18 @@ function cluster(
 }
 
 export function flowerGeometry(): FlowerGeometry {
-  const center = [
-    cluster('petal-0', 'center', 0, -3, 0, 0.95),
-    cluster('petal-1', 'center', 3, 0, 90, 0.95),
-    cluster('petal-2', 'center', 0, 3, 180, 0.95),
-    cluster('petal-3', 'center', -3, 0, 270, 0.95),
-  ]
+  const center = Array.from({ length: 6 }, (_, index) => {
+    const angle = -90 + index * 60
+    const rad = (angle * Math.PI) / 180
+    return cluster(
+      `petal-${index}`,
+      'center',
+      Math.cos(rad) * 8,
+      Math.sin(rad) * 8,
+      angle + 90,
+      0.95,
+    )
+  })
 
   const inner = [
     cluster('puff-0', 'puff', -23, -23, -22, 1.05),

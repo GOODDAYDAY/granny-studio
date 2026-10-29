@@ -10,13 +10,13 @@ export interface LayerMeta {
 }
 
 export const LAYERS: LayerMeta[] = [
-  { id: 'center', name: '第1圈', hint: '花心 · 4 簇', count: 4 },
+  { id: 'center', name: '第1圈', hint: '花心 · 6 簇', count: 6 },
   { id: 'puff', name: '第2圈', hint: '内圈 · 8 簇', count: 8 },
   { id: 'background', name: '第3圈', hint: '外圈 · 12 簇', count: 12 },
   { id: 'border', name: '第4圈', hint: '边框 · 16 簇', count: 16 },
 ]
 
-const centerRegions: PatternRegion[] = Array.from({ length: 4 }, (_, index) => ({
+const centerRegions: PatternRegion[] = Array.from({ length: 6 }, (_, index) => ({
   id: `petal-${index}`,
   layer: 'center',
   index,

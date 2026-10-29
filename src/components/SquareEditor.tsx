@@ -65,7 +65,7 @@ export default function SquareEditor() {
             spellCheck={false}
           />
           <p className="stage-sub">
-            四圈 · 4 个颜色 · 4 / 8 / 12 / 16
+            四圈 · 4 个颜色 · 6 / 8 / 12 / 16
           </p>
         </div>
         <div className="stage-actions">
