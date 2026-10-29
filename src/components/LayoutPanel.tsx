@@ -274,7 +274,7 @@ export default function LayoutPanel() {
               复制一张，只改这一格
             </button>
             <p className="micro-hint">
-              会新建一张独立方格并替换这一格；它的四层间隙可以单独配色，其它格不受影响。
+              会新建一张独立方格并替换这一格；它的方格背景可以单独配色，其它格不受影响。
             </p>
           </>
         )}
