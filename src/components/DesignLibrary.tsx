@@ -8,6 +8,7 @@ import DesignThumb from './DesignThumb'
 export default function DesignLibrary() {
   const designs = useStudio((state) => state.project.designs)
   const board = useStudio((state) => state.project.board)
+  const fill = useStudio((state) => state.project.fill ?? null)
   const activeDesignId = useStudio((state) => state.activeDesignId)
   const mode = useStudio((state) => state.mode)
   const selectDesign = useStudio((state) => state.selectDesign)
@@ -85,6 +86,7 @@ export default function DesignLibrary() {
                 design={design}
                 prefix={`thumb-${design.id}`}
                 className="design-thumb-small"
+                backing={fill}
               />
               <div className="design-meta">
                 <span className="design-name">{design.name}</span>

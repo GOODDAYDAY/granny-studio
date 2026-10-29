@@ -5,6 +5,7 @@ import {
 } from '../domain/design'
 import { LAYERS, regionsOfLayer } from '../domain/patterns'
 import { useStudio } from '../store/studio'
+import FillColorRow from './FillColorRow'
 
 export default function LayerPanel() {
   const design = useStudio((state) =>
@@ -126,6 +127,8 @@ export default function LayerPanel() {
         </button>
       </div>
       <p className="micro-hint">轮换会用层颜色重排，单瓣自定义会被覆盖。</p>
+
+      <FillColorRow />
     </section>
   )
 }

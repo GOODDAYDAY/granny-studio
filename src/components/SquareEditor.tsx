@@ -10,6 +10,7 @@ export default function SquareEditor() {
     state.project.designs.find((item) => item.id === state.activeDesignId),
   )
   const activeColor = useStudio((state) => state.activeColor)
+  const fill = useStudio((state) => state.project.fill ?? null)
   const paintRegion = useStudio((state) => state.paintRegion)
   const renameDesign = useStudio((state) => state.renameDesign)
   const undo = useStudio((state) => state.undo)
@@ -95,6 +96,7 @@ export default function SquareEditor() {
             design={design}
             prefix="editor"
             interactive
+            backing={fill}
             onPaint={paintRegion}
           />
         </div>

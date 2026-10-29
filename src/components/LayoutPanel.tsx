@@ -13,6 +13,7 @@ import {
 import { FABRIC_SWATCHES } from '../domain/presets'
 import { useStudio } from '../store/studio'
 import DesignThumb from './DesignThumb'
+import FillColorRow from './FillColorRow'
 
 const PRESETS = [
   { label: '2 × 2', rows: 2, cols: 2 },
@@ -66,6 +67,7 @@ export default function LayoutPanel() {
     state.project.designs.find((item) => item.id === state.activeDesignId),
   )
   const selectedCell = useStudio((state) => state.selectedCell)
+  const fill = useStudio((state) => state.project.fill ?? null)
   const boardTool = useStudio((state) => state.boardTool)
   const setBoardSize = useStudio((state) => state.setBoardSize)
   const setGap = useStudio((state) => state.setGap)
@@ -157,8 +159,8 @@ export default function LayoutPanel() {
 
       <div className="layout-block">
         <div className="layout-block-head">
-          <span>接缝 / 底布</span>
-          <span className="micro-hint">{Math.round(board.gap * 100)}%</span>
+          <span>填缝 / 底布</span>
+          <span className="micro-hint">间距 {Math.round(board.gap * 100)}%</span>
         </div>
         <input
           className="range"
@@ -170,6 +172,10 @@ export default function LayoutPanel() {
           onChange={(event) => setGap(Number(event.target.value))}
           aria-label="方格间距"
         />
+        <div className="sub-label">
+          <span>底布</span>
+          <span>{board.fabric.toUpperCase()}</span>
+        </div>
         <div className="fabric-row">
           {FABRIC_SWATCHES.map((fabric) => (
             <button
@@ -185,6 +191,7 @@ export default function LayoutPanel() {
             />
           ))}
         </div>
+        <FillColorRow />
       </div>
 
       <div className="layout-block">
@@ -242,6 +249,7 @@ export default function LayoutPanel() {
               design={selectedDesign}
               prefix={`cell-${selectedDesign.id}`}
               className="cell-thumb"
+              backing={fill}
             />
             <div className="selected-meta">
               <strong>{selectedDesign.name}</strong>

@@ -370,6 +370,7 @@ export interface FlowerShapesProps {
   prefix: string
   detail?: boolean
   interactive?: boolean
+  backing?: string | null
   onPaint?: (regionId: string) => void
 }
 
@@ -378,6 +379,7 @@ export function FlowerShapes({
   prefix,
   detail = true,
   interactive = false,
+  backing = null,
   onPaint,
 }: FlowerShapesProps) {
   const geometry = useMemo(() => flowerGeometry(design.puffPlacement), [design.puffPlacement])
@@ -388,6 +390,18 @@ export function FlowerShapes({
 
   return (
     <g className="flower-root">
+      {backing && (
+        <rect
+          x={-4.55}
+          y={-4.55}
+          width={9.1}
+          height={9.1}
+          rx={0.55}
+          fill={backing}
+          pointerEvents="none"
+        />
+      )}
+
       {geometry.border.map((piece) => {
         const color = design.colors[piece.regionId] ?? colors[0]
         return (
@@ -470,6 +484,7 @@ export interface FlowerSvgProps {
   design: SquareDesign
   prefix: string
   interactive?: boolean
+  backing?: string | null
   onPaint?: (regionId: string) => void
   className?: string
 }
@@ -478,6 +493,7 @@ export default function FlowerSvg({
   design,
   prefix,
   interactive = false,
+  backing = null,
   onPaint,
   className,
 }: FlowerSvgProps) {
@@ -534,6 +550,7 @@ export default function FlowerSvg({
       <FlowerShapes
         design={design}
         prefix={prefix}
+        backing={backing}
         interactive={interactive}
         onPaint={onPaint}
       />

@@ -19,6 +19,13 @@ export function isValidProject(value: unknown): value is Project {
   if (!Number.isFinite(board.rows) || !Number.isFinite(board.cols)) return false
   if (!isRecord(board.cells)) return false
   if (typeof board.fabric !== 'string' || typeof board.gap !== 'number') return false
+  if (
+    value.fill !== undefined &&
+    value.fill !== null &&
+    typeof value.fill !== 'string'
+  ) {
+    return false
+  }
 
   for (const design of value.designs) {
     if (!isRecord(design)) return false

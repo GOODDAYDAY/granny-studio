@@ -189,6 +189,7 @@ describe('demo project', () => {
     expect(project.board.rows).toBe(2)
     expect(project.board.cols).toBe(2)
     expect(occupiedCount(project.board)).toBe(4)
+    expect(project.fill).toBeNull()
     expect(project.palette.length).toBeGreaterThanOrEqual(4)
     for (const item of project.designs) {
       expect(Object.keys(item.colors)).toHaveLength(46)

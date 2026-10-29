@@ -51,4 +51,6 @@ export interface Project {
   palette: PaletteColor[]
   designs: SquareDesign[]
   board: Board
+  /** Color for the negative space between tiles and inside each square. */
+  fill: Hex | null
 }

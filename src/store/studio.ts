@@ -91,6 +91,7 @@ interface StudioState {
   setBoardSize: (rows: number, cols: number) => void
   setGap: (gap: number) => void
   setFabric: (hex: Hex) => void
+  setFill: (hex: Hex | null) => void
   setBoardTool: (tool: BoardTool) => void
   selectCell: (row: number, col: number) => void
   assignCell: (row: number, col: number) => void
@@ -365,6 +366,22 @@ export const useStudio = create<StudioState>()((set, get) => {
       if (!normalized || normalized === get().project.board.fabric) return
       commit((draft) => {
         draft.board.fabric = normalized
+      })
+    },
+
+    setFill: (hex) => {
+      const current = get().project.fill ?? null
+      if (hex === null) {
+        if (current === null) return
+        commit((draft) => {
+          draft.fill = null
+        })
+        return
+      }
+      const normalized = normalizeHex(hex)
+      if (!normalized || normalized === current) return
+      commit((draft) => {
+        draft.fill = normalized
       })
     },
 

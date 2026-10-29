@@ -5,6 +5,7 @@ import BoardSvg from '../render/BoardSvg'
 export default function ViewMode() {
   const board = useStudio((state) => state.project.board)
   const designs = useStudio((state) => state.project.designs)
+  const fill = useStudio((state) => state.project.fill ?? null)
   const closeView = useStudio((state) => state.closeView)
 
   return (
@@ -24,6 +25,7 @@ export default function ViewMode() {
         <BoardSvg
           board={board}
           designs={designs}
+          backing={fill}
           idPrefix="view"
           className="view-board"
         />
