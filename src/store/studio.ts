@@ -17,11 +17,10 @@ import {
   fillLayer as fillLayerColors,
   getLayerColors,
   makeId,
+  normalizeDesignColors,
   renameDesign as renameDesignEntity,
   rotateLayerColors,
-  setBackground as setBackgroundEntity,
   setPuffPlacement as setPuffPlacementEntity,
-  setRegionColor,
   shuffleLayerColors,
 } from '../domain/design'
 import { createDemoProject } from '../domain/presets'
@@ -49,7 +48,11 @@ export interface ConfirmRequest {
   onConfirm: () => void
 }
 
-const initialProject = loadProject()
+const loadedProject = loadProject()
+const initialProject: Project = {
+  ...loadedProject,
+  designs: loadedProject.designs.map(normalizeDesignColors),
+}
 const initialDesign = initialProject.designs[0]
 const initialColor = initialProject.palette[0]?.hex ?? '#B85C42'
 
@@ -80,14 +83,12 @@ interface StudioState {
   deleteDesign: (id: string) => void
   renameDesign: (id: string, name: string) => void
   setPuffPlacement: (placement: PuffPlacement) => void
-  setBackground: () => void
 
   selectColor: (hex: Hex) => void
   addPaletteColor: (hex: Hex, source?: PaletteColor['source']) => void
   selectLayer: (layer: LayerId) => void
   fillLayer: (layer: LayerId) => void
   fillActiveLayer: () => void
-  paintRegion: (regionId: string) => void
   rotateColors: () => void
   shuffleColors: () => void
 
@@ -214,7 +215,6 @@ export const useStudio = create<StudioState>()((set, get) => {
           border: baseColors[0],
         },
         puffPlacement: source?.puffPlacement ?? 'outer',
-        background: source?.background,
       })
       commit((draft) => {
         draft.designs.push(design)
@@ -287,12 +287,6 @@ export const useStudio = create<StudioState>()((set, get) => {
       replaceActiveDesign(setPuffPlacementEntity(source, placement))
     },
 
-    setBackground: () => {
-      const source = activeDesign()
-      if (!source) return
-      replaceActiveDesign(setBackgroundEntity(source, get().activeColor))
-    },
-
     selectColor: (hex) => {
       const normalized = normalizeHex(hex)
       if (normalized) set({ activeColor: normalized })
@@ -330,13 +324,6 @@ export const useStudio = create<StudioState>()((set, get) => {
 
     fillActiveLayer: () => {
       get().fillLayer(get().activeLayer)
-    },
-
-    paintRegion: (regionId) => {
-      const source = activeDesign()
-      if (!source) return
-      const next = setRegionColor(source, regionId, get().activeColor)
-      replaceActiveDesign(next)
     },
 
     rotateColors: () => {

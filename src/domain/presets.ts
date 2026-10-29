@@ -10,6 +10,14 @@ export const PHOTO_COLORS = {
 } as const
 
 export const STARTER_SWATCHES: { hex: Hex; name: string }[] = [
+  { hex: '#1E4E79', name: '深海蓝' },
+  { hex: '#C63A32', name: '砖红' },
+  { hex: '#2E547F', name: '牛仔蓝' },
+  { hex: '#A8C9E8', name: '浅雾蓝' },
+  { hex: '#6E6A6A', name: '暖灰' },
+  { hex: '#14532D', name: '墨绿' },
+  { hex: '#F1D879', name: '鹅黄' },
+  { hex: '#7EA477', name: '豆绿' },
   { hex: PHOTO_COLORS.pink, name: '藕粉' },
   { hex: PHOTO_COLORS.cream, name: '奶白' },
   { hex: PHOTO_COLORS.brown, name: '栗棕' },
@@ -44,6 +52,27 @@ export function makePresetDesigns(): SquareDesign[] {
     ({ center, puff, background, border }) satisfies Record<LayerId, Hex>
 
   return [
+    createDesign({
+      id: 'design-flag',
+      name: '蓝白红',
+      colors: colors('#1E4E79', cream, '#C63A32', '#2E547F'),
+      puffPlacement: 'inner',
+      now,
+    }),
+    createDesign({
+      id: 'design-slate',
+      name: '灰蓝白',
+      colors: colors('#1C4B56', '#A8C9E8', cream, '#6E6A6A'),
+      puffPlacement: 'inner',
+      now,
+    }),
+    createDesign({
+      id: 'design-meadow',
+      name: '绿黄白',
+      colors: colors('#14532D', '#F1D879', cream, '#7EA477'),
+      puffPlacement: 'inner',
+      now,
+    }),
     createDesign({
       id: 'design-pink',
       name: '粉边白花',
@@ -80,10 +109,10 @@ export function createDemoProject(): Project {
   const board = createBoard(2, 2, FABRIC_SWATCHES[0])
   board.gap = 0.05
   board.cells = {
-    '0:0': { designId: 'design-pink', rotation: 0 },
-    '0:1': { designId: 'design-brown', rotation: 0 },
-    '1:0': { designId: 'design-green', rotation: 0 },
-    '1:1': { designId: 'design-cream', rotation: 0 },
+    '0:0': { designId: 'design-flag', rotation: 0 },
+    '0:1': { designId: 'design-slate', rotation: 0 },
+    '1:0': { designId: 'design-meadow', rotation: 0 },
+    '1:1': { designId: 'design-pink', rotation: 0 },
   }
   return {
     schemaVersion: 1,

@@ -18,15 +18,13 @@ import {
   fillLayer,
   getLayerColors,
   isLayerUniform,
+  normalizeDesignColors,
   rotateLayerColors,
-  setBackground,
   setPuffPlacement,
-  setRegionColor,
   shuffleLayerColors,
 } from './design'
 import { flowerGeometry } from './geometry'
 import {
-  DEFAULT_BACKGROUND,
   FLOWER_REGIONS,
   LAYERS,
   makeLayerColors,
@@ -89,7 +87,6 @@ describe('flower pattern', () => {
 describe('design operations', () => {
   it('creates a complete design', () => {
     expect(Object.keys(design.colors)).toHaveLength(46)
-    expect(design.background).toBe(DEFAULT_BACKGROUND)
     expect(getLayerColors(design)).toEqual([
       '#112233',
       '#223344',
@@ -101,17 +98,15 @@ describe('design operations', () => {
     }
   })
 
-  it('recolors the square background only', () => {
-    const next = setBackground(design, '#ABCDEF')
-    expect(next.background).toBe('#ABCDEF')
-    expect(next.colors).toEqual(design.colors)
-  })
-
-  it('paints one region without touching the rest of the layer', () => {
-    const next = setRegionColor(design, 'petal-0', '#ABCDEF')
-    expect(next.colors['petal-0']).toBe('#ABCDEF')
-    expect(next.colors['petal-1']).toBe(layerColors.center)
-    expect(isLayerUniform(next, 'center')).toBe(false)
+  it('normalizes legacy per-region colors to four round colors', () => {
+    const patchy = {
+      ...design,
+      colors: { ...design.colors, 'petal-1': '#ABCDEF' },
+    }
+    expect(isLayerUniform(patchy, 'center')).toBe(false)
+    const normalized = normalizeDesignColors(patchy)
+    expect(isLayerUniform(normalized, 'center')).toBe(true)
+    expect(getLayerColors(normalized)).toEqual(getLayerColors(design))
   })
 
   it('fills a whole layer', () => {
@@ -148,7 +143,6 @@ describe('design operations', () => {
     expect(copy.id).not.toBe(design.id)
     expect(copy.colors).toEqual(design.colors)
     expect(copy.colors).not.toBe(design.colors)
-    expect(copy.background).toBe(design.background)
   })
 })
 
@@ -198,16 +192,15 @@ describe('board operations', () => {
 })
 
 describe('demo project', () => {
-  it('starts with four colorways and a 2x2 board', () => {
+  it('starts with seven four-round colorways and a 2x2 board', () => {
     const project = createDemoProject()
-    expect(project.designs).toHaveLength(4)
+    expect(project.designs).toHaveLength(7)
     expect(project.board.rows).toBe(2)
     expect(project.board.cols).toBe(2)
     expect(occupiedCount(project.board)).toBe(4)
-    expect(project.palette.length).toBeGreaterThanOrEqual(4)
+    expect(project.palette.length).toBeGreaterThanOrEqual(8)
     for (const item of project.designs) {
       expect(Object.keys(item.colors)).toHaveLength(46)
-      expect(item.background).toBe(DEFAULT_BACKGROUND)
       for (const layer of LAYERS) {
         expect(isLayerUniform(item, layer.id)).toBe(true)
       }
@@ -221,13 +214,25 @@ describe('demo project', () => {
     expect(isValidProject({ schemaVersion: 1 } as Project)).toBe(false)
   })
 
-  it('makes the four photo colorways in both layer orders', () => {
+  it('makes the seven photo colorways in both layer orders', () => {
     const designs = makePresetDesigns()
     expect(designs.map((item) => item.puffPlacement)).toEqual([
       'inner',
+      'inner',
+      'inner',
+      'inner',
       'outer',
       'inner',
       'outer',
+    ])
+    expect(designs.map((item) => item.name)).toEqual([
+      '蓝白红',
+      '灰蓝白',
+      '绿黄白',
+      '粉边白花',
+      '棕边白花',
+      '绿边粉花',
+      '白边粉花',
     ])
   })
 })

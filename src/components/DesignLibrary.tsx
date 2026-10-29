@@ -35,7 +35,7 @@ export default function DesignLibrary() {
   const askReset = () => {
     requestConfirm({
       title: '恢复示例项目？',
-      body: '当前的方格和布局会被四款示例替换。这一步可以用撤销找回。',
+      body: '当前的方格和布局会被七款示例替换。这一步可以用撤销找回。',
       confirmLabel: '恢复示例',
       onConfirm: () => resetDemo(),
     })
@@ -134,7 +134,7 @@ export default function DesignLibrary() {
 
       <div className="library-note">
         <span className="eyebrow">四色轮换</span>
-        <p>这四款只是同一组藕粉、奶白、栗棕、鼠尾草绿换了层位。选中一款，点「四色轮换」继续试。</p>
+        <p>这些示例来自参考照片，每款四圈四色。选中一款，点「四色轮换」试其他排法。</p>
       </div>
 
       <div className="library-foot">

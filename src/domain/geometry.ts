@@ -4,15 +4,6 @@ export const FLOWER_VIEW_SIZE = 9.2
 export const FLOWER_HALF = FLOWER_VIEW_SIZE / 2
 export const FLOWER_VIEW_BOX = `${-FLOWER_HALF} ${-FLOWER_HALF} ${FLOWER_VIEW_SIZE} ${FLOWER_VIEW_SIZE}`
 
-/** Background inside the outer border; tucked under the border edge. */
-export const BACKGROUND_RECT = {
-  x: -3.95,
-  y: -3.95,
-  width: 7.9,
-  height: 7.9,
-  rx: 0.55,
-}
-
 const RAD = Math.PI / 180
 
 export interface RadialPiece {

@@ -1,7 +1,5 @@
 import {
-  DEFAULT_BACKGROUND,
   FLOWER_PATTERN_ID,
-  FLOWER_REGIONS,
   LAYERS,
   makeLayerColors,
   regionsOfLayer,
@@ -21,7 +19,6 @@ export function makeId(prefix: string): string {
 export interface CreateDesignInput {
   name: string
   colors: Record<LayerId, Hex>
-  background?: Hex
   puffPlacement?: PuffPlacement
   id?: string
   now?: number
@@ -34,24 +31,9 @@ export function createDesign(input: CreateDesignInput): SquareDesign {
     name: input.name,
     patternId: FLOWER_PATTERN_ID,
     colors: makeLayerColors(input.colors),
-    background: input.background ?? DEFAULT_BACKGROUND,
     puffPlacement: input.puffPlacement ?? 'outer',
     createdAt: now,
     updatedAt: now,
-  }
-}
-
-export function setRegionColor(
-  design: SquareDesign,
-  regionId: string,
-  hex: Hex,
-): SquareDesign {
-  if (!FLOWER_REGIONS.some((region) => region.id === regionId)) return design
-  if (design.colors[regionId] === hex) return design
-  return {
-    ...design,
-    colors: { ...design.colors, [regionId]: hex },
-    updatedAt: Date.now(),
   }
 }
 
@@ -95,6 +77,17 @@ export function isLayerUniform(design: SquareDesign, layer: LayerId): boolean {
   return regions.every((region) => design.colors[region.id] === first)
 }
 
+/** Collapse any legacy per-region variation down to exactly four round colors. */
+export function normalizeDesignColors(design: SquareDesign): SquareDesign {
+  let next = design
+  for (const layer of LAYERS) {
+    if (!isLayerUniform(next, layer.id)) {
+      next = fillLayer(next, layer.id, getLayerColor(next, layer.id))
+    }
+  }
+  return next
+}
+
 export function rotateLayerColors(design: SquareDesign): SquareDesign {
   const [center, puff, background, border] = getLayerColors(design)
   return applyLayerColors(design, {
@@ -128,14 +121,6 @@ export function setPuffPlacement(
 ): SquareDesign {
   if (design.puffPlacement === placement) return design
   return { ...design, puffPlacement: placement, updatedAt: Date.now() }
-}
-
-export function setBackground(
-  design: SquareDesign,
-  hex: Hex,
-): SquareDesign {
-  if (design.background === hex) return design
-  return { ...design, background: hex, updatedAt: Date.now() }
 }
 
 export function renameDesign(design: SquareDesign, name: string): SquareDesign {

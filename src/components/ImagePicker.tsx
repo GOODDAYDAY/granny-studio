@@ -12,6 +12,13 @@ const LOUPE_PIXELS = 9
 const LOUPE_SCALE = 13
 const LOUPE_SIZE = LOUPE_PIXELS * LOUPE_SCALE
 
+const SAMPLE_OPTIONS = [
+  { radius: 0, label: '1×1' },
+  { radius: 2, label: '5×5' },
+  { radius: 4, label: '9×9' },
+  { radius: 8, label: '17×17' },
+] as const
+
 interface LoupeState {
   nx: number
   ny: number
@@ -42,6 +49,7 @@ export default function ImagePicker() {
   const [picked, setPicked] = useState<string[]>([])
   const [loupe, setLoupe] = useState<LoupeState>(EMPTY_LOUPE)
   const [dragActive, setDragActive] = useState(false)
+  const [sampleRadius, setSampleRadius] = useState(4)
 
   const inputRef = useRef<HTMLInputElement>(null)
   const imgRef = useRef<HTMLImageElement>(null)
@@ -189,8 +197,41 @@ export default function ImagePicker() {
     const ny = Math.min(canvas.height - 1, Math.max(0, Math.floor(ratioY * canvas.height)))
     const context = canvas.getContext('2d', { willReadFrequently: true })
     if (!context) return null
-    const data = context.getImageData(nx, ny, 1, 1).data
-    return { nx, ny, hex: rgbToHex(data[0], data[1], data[2]) }
+
+    if (sampleRadius === 0) {
+      const data = context.getImageData(nx, ny, 1, 1).data
+      if (data[3] === 0) return null
+      return { nx, ny, hex: rgbToHex(data[0], data[1], data[2]) }
+    }
+
+    const startX = Math.max(0, nx - sampleRadius)
+    const startY = Math.max(0, ny - sampleRadius)
+    const endX = Math.min(canvas.width, nx + sampleRadius + 1)
+    const endY = Math.min(canvas.height, ny + sampleRadius + 1)
+    const width = Math.max(1, endX - startX)
+    const height = Math.max(1, endY - startY)
+    const data = context.getImageData(startX, startY, width, height).data
+    let red = 0
+    let green = 0
+    let blue = 0
+    let count = 0
+    for (let index = 0; index < data.length; index += 4) {
+      if (data[index + 3] === 0) continue
+      red += data[index]
+      green += data[index + 1]
+      blue += data[index + 2]
+      count += 1
+    }
+    if (count === 0) return null
+    return {
+      nx,
+      ny,
+      hex: rgbToHex(
+        Math.round(red / count),
+        Math.round(green / count),
+        Math.round(blue / count),
+      ),
+    }
   }
 
   const onPointerMove = (event: ReactPointerEvent<HTMLImageElement>) => {
@@ -304,6 +345,19 @@ export default function ImagePicker() {
                     </button>
                   </div>
                   <span className="hex-readout">{loupe.visible ? loupe.hex : '移到图上取色'}</span>
+                  <div className="sample-controls" role="group" aria-label="取样范围">
+                    <span>取样</span>
+                    {SAMPLE_OPTIONS.map((option) => (
+                      <button
+                        key={option.label}
+                        type="button"
+                        className={sampleRadius === option.radius ? 'is-active' : ''}
+                        onClick={() => setSampleRadius(option.radius)}
+                      >
+                        {option.label}
+                      </button>
+                    ))}
+                  </div>
                 </div>
                 <div className="image-scroll" ref={imageScrollRef}>
                   <img
@@ -326,7 +380,7 @@ export default function ImagePicker() {
 
           <aside className="picker-side">
             <p className="picker-note">
-              在图上任意位置点一下，颜色就会加入调色盘。放大镜按原图像素采样，不会取到缩放后的模糊颜色。
+              在图上任意位置点一下，取点周围一块的平均色，加入调色盘。毛线有纹理和噪点，默认 9×9 平均更稳；要精确到单像素可以切 1×1。
             </p>
             <div className="picked-block">
               <span className="eyebrow">PICKED · {picked.length}</span>

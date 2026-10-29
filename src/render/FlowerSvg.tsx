@@ -1,20 +1,9 @@
-import { useMemo, useRef } from 'react'
-import type { PointerEvent as ReactPointerEvent, ReactNode } from 'react'
+import { useMemo } from 'react'
+import type { ReactNode } from 'react'
 import { adjustLightness } from '../domain/color'
-import {
-  flowerGeometry,
-  BACKGROUND_RECT,
-} from '../domain/geometry'
+import { flowerGeometry } from '../domain/geometry'
 import type { FlowerGeometry, RadialPiece } from '../domain/geometry'
-import { DEFAULT_BACKGROUND } from '../domain/patterns'
 import type { LayerId, SquareDesign } from '../domain/types'
-
-const LAYER_LABELS: Record<LayerId, string> = {
-  center: '花心',
-  puff: '外瓣',
-  background: '底针',
-  border: '边框',
-}
 
 export function uniqueDesignColors(design: SquareDesign): string[] {
   return Array.from(new Set(Object.values(design.colors)))
@@ -40,14 +29,70 @@ export function ColorDefs({ design, prefix }: { design: SquareDesign; prefix: st
       ))}
       <pattern
         id={`${prefix}-yarn`}
-        width=".09"
-        height=".09"
+        width=".22"
+        height=".22"
         patternUnits="userSpaceOnUse"
-        patternTransform="rotate(28)"
+        patternTransform="rotate(26)"
       >
-        <path d="M0 .02 H.09" stroke="#2A1A0F" strokeOpacity=".055" strokeWidth=".011" />
-        <path d="M0 .058 H.09" stroke="#FFF8EC" strokeOpacity=".065" strokeWidth=".008" />
+        <path
+          d="M0 .035 Q .055 .005 .11 .035 T .22 .035"
+          fill="none"
+          stroke="#2A1A0F"
+          strokeOpacity=".14"
+          strokeWidth=".015"
+        />
+        <path
+          d="M0 .09 Q .055 .06 .11 .09 T .22 .09"
+          fill="none"
+          stroke="#FFF8EC"
+          strokeOpacity=".16"
+          strokeWidth=".011"
+        />
+        <path
+          d="M0 .14 Q .055 .11 .11 .14 T .22 .14"
+          fill="none"
+          stroke="#2A1A0F"
+          strokeOpacity=".1"
+          strokeWidth=".012"
+        />
+        <path
+          d="M0 .19 Q .055 .16 .11 .19 T .22 .19"
+          fill="none"
+          stroke="#FFF8EC"
+          strokeOpacity=".09"
+          strokeWidth=".008"
+        />
       </pattern>
+      <filter id={`${prefix}-fuzz`} x="-18%" y="-18%" width="136%" height="136%">
+        <feTurbulence
+          type="fractalNoise"
+          baseFrequency=".72"
+          numOctaves="2"
+          seed="11"
+          result="noise"
+        />
+        <feDisplacementMap
+          in="SourceGraphic"
+          in2="noise"
+          scale=".06"
+          xChannelSelector="R"
+          yChannelSelector="G"
+        />
+        <feGaussianBlur stdDeviation=".005" />
+      </filter>
+      <filter id={`${prefix}-grain`} x="0" y="0" width="100%" height="100%">
+        <feTurbulence
+          type="fractalNoise"
+          baseFrequency=".9"
+          numOctaves="3"
+          seed="5"
+          result="grain"
+        />
+        <feColorMatrix in="grain" type="saturate" values="0" />
+        <feComponentTransfer>
+          <feFuncA type="linear" slope=".55" />
+        </feComponentTransfer>
+      </filter>
     </>
   )
 }
@@ -93,6 +138,7 @@ function PuffShape({
 }) {
   const h = length / 2
   const w = width / 2
+  const ridgeXs = [-w * 0.3, 0, w * 0.3]
   return (
     <>
       <path
@@ -121,19 +167,33 @@ function PuffShape({
             fill="rgba(255,255,255,.15)"
             pointerEvents="none"
           />
+          {ridgeXs.map((x, index) => (
+            <path
+              key={`puff-ridge-${index}`}
+              d={`M ${x} ${h * 0.74} C ${x + w * 0.075} ${h * 0.24}, ${x - w * 0.075} ${-h * 0.24}, ${x} ${-h * 0.74}`}
+              fill="none"
+              stroke="rgba(47,28,15,.2)"
+              strokeWidth={0.021}
+              strokeLinecap="round"
+              pointerEvents="none"
+            />
+          ))}
+          {ridgeXs.map((x, index) => (
+            <path
+              key={`puff-ridge-light-${index}`}
+              d={`M ${x + 0.02} ${h * 0.64} C ${x + w * 0.075 + 0.02} ${h * 0.18}, ${x - w * 0.075 + 0.02} ${-h * 0.18}, ${x + 0.02} ${-h * 0.64}`}
+              fill="none"
+              stroke="rgba(255,255,255,.18)"
+              strokeWidth={0.011}
+              strokeLinecap="round"
+              pointerEvents="none"
+            />
+          ))}
           <path
-            d={`M 0 ${h * 0.8} C ${w * 0.09} ${h * 0.25}, ${-w * 0.09} ${-h * 0.25}, 0 ${-h * 0.8}`}
+            d={`M ${-w * 0.7} ${h * 0.72} Q 0 ${h * 0.88} ${w * 0.7} ${h * 0.72}`}
             fill="none"
-            stroke="rgba(47,28,15,.22)"
-            strokeWidth={0.024}
-            strokeLinecap="round"
-            pointerEvents="none"
-          />
-          <path
-            d={`M ${w * 0.035} ${h * 0.72} C ${w * 0.11} ${h * 0.2}, ${-w * 0.05} ${-h * 0.2}, ${w * 0.035} ${-h * 0.72}`}
-            fill="none"
-            stroke="rgba(255,255,255,.2)"
-            strokeWidth={0.013}
+            stroke="rgba(47,28,15,.2)"
+            strokeWidth={0.022}
             strokeLinecap="round"
             pointerEvents="none"
           />
@@ -207,6 +267,14 @@ function ClusterShape({
               pointerEvents="none"
             />
           ))}
+          <path
+            d={`M ${-w * 0.62} ${h * 0.72} Q 0 ${h * 0.86} ${w * 0.62} ${h * 0.72}`}
+            fill="none"
+            stroke="rgba(47,28,15,.18)"
+            strokeWidth={0.019}
+            strokeLinecap="round"
+            pointerEvents="none"
+          />
         </>
       )}
     </>
@@ -282,6 +350,14 @@ function BorderShape({
             strokeWidth={0.012}
             pointerEvents="none"
           />
+          <path
+            d={`M ${-length * 0.3} ${width * 0.34} Q 0 ${width * 0.42} ${length * 0.3} ${width * 0.34}`}
+            fill="none"
+            stroke="rgba(47,28,15,.16)"
+            strokeWidth={0.016}
+            strokeLinecap="round"
+            pointerEvents="none"
+          />
         </>
       )}
     </>
@@ -291,33 +367,12 @@ function BorderShape({
 interface RegionShellProps {
   id: string
   layer: LayerId
-  label: string
-  interactive: boolean
-  onPaint?: (regionId: string) => void
   children: ReactNode
 }
 
-function RegionShell({ id, layer, label, interactive, onPaint, children }: RegionShellProps) {
+function RegionShell({ id, layer, children }: RegionShellProps) {
   return (
-    <g
-      className="flower-region"
-      data-region={id}
-      data-layer={layer}
-      role={interactive ? 'button' : undefined}
-      tabIndex={interactive ? 0 : undefined}
-      aria-label={interactive ? label : undefined}
-      onKeyDown={
-        interactive
-          ? (event) => {
-              if (event.key === 'Enter' || event.key === ' ') {
-                event.preventDefault()
-                onPaint?.(id)
-              }
-            }
-          : undefined
-      }
-    >
-      {interactive && <title>{label}</title>}
+    <g className="flower-region" data-region={id} data-layer={layer}>
       {children}
     </g>
   )
@@ -328,18 +383,12 @@ function radialElement(
   fill: string,
   texture: string,
   detail: boolean,
-  interactive: boolean,
-  onPaint?: (regionId: string) => void,
 ) {
-  const label = `${LAYER_LABELS[piece.layer]} ${Number(piece.regionId.split('-')[1]) + 1}`
   return (
     <RegionShell
       key={piece.regionId}
       id={piece.regionId}
       layer={piece.layer}
-      label={label}
-      interactive={interactive}
-      onPaint={onPaint}
     >
       <g transform={`translate(${piece.cx} ${piece.cy}) rotate(${piece.rotation})`}>
         {piece.kind === 'cluster' ? (
@@ -364,63 +413,16 @@ function radialElement(
   )
 }
 
-interface BackgroundBackingProps {
-  design: SquareDesign
-  interactive: boolean
-  onPaintBackground?: () => void
-}
-
-function BackgroundBacking({
-  design,
-  interactive,
-  onPaintBackground,
-}: BackgroundBackingProps) {
-  const color = design.background ?? DEFAULT_BACKGROUND
-  return (
-    <g
-      className="background-layer"
-      data-background="square"
-      role={interactive ? 'button' : undefined}
-      tabIndex={interactive ? 0 : undefined}
-      aria-label={interactive ? '方格背景' : undefined}
-      pointerEvents={interactive ? 'all' : 'none'}
-      onKeyDown={
-        interactive
-          ? (event) => {
-              if (event.key === 'Enter' || event.key === ' ') {
-                event.preventDefault()
-                onPaintBackground?.()
-              }
-            }
-          : undefined
-      }
-    >
-      {interactive && <title>方格背景</title>}
-      <rect
-        {...BACKGROUND_RECT}
-        fill={color}
-        pointerEvents={interactive ? 'all' : 'none'}
-      />
-    </g>
-  )
-}
-
 export interface FlowerShapesProps {
   design: SquareDesign
   prefix: string
   detail?: boolean
-  interactive?: boolean
-  onPaint?: (regionId: string) => void
-  onPaintBackground?: () => void
 }
 
 export function FlowerShapes({
   design,
   prefix,
   detail = true,
-  interactive = false,
-  onPaint,
-  onPaintBackground,
 }: FlowerShapesProps) {
   const geometry = useMemo(() => flowerGeometry(design.puffPlacement), [design.puffPlacement])
   const colors = useMemo(() => uniqueDesignColors(design), [design])
@@ -429,13 +431,10 @@ export function FlowerShapes({
   const texture = `url(#${prefix}-yarn)`
 
   return (
-    <g className="flower-root">
-      <BackgroundBacking
-        design={design}
-        interactive={interactive}
-        onPaintBackground={onPaintBackground}
-      />
-
+    <g
+      className="flower-root"
+      filter={detail ? `url(#${prefix}-fuzz)` : undefined}
+    >
       {geometry.border.map((piece) => {
         const color = design.colors[piece.regionId] ?? colors[0]
         return (
@@ -443,9 +442,6 @@ export function FlowerShapes({
             key={piece.regionId}
             id={piece.regionId}
             layer="border"
-            label={`边框 ${Number(piece.regionId.split('-')[1]) + 1}`}
-            interactive={interactive}
-            onPaint={onPaint}
           >
             <g transform={`translate(${piece.cx} ${piece.cy}) rotate(${piece.rotation})`}>
               <BorderShape
@@ -466,8 +462,6 @@ export function FlowerShapes({
           fillFor(design.colors[piece.regionId] ?? colors[0]),
           texture,
           detail,
-          interactive,
-          onPaint,
         ),
       )}
 
@@ -477,8 +471,6 @@ export function FlowerShapes({
           fillFor(design.colors[piece.regionId] ?? colors[0]),
           texture,
           detail,
-          interactive,
-          onPaint,
         ),
       )}
 
@@ -488,9 +480,20 @@ export function FlowerShapes({
           fillFor(design.colors[piece.regionId] ?? colors[0]),
           texture,
           detail,
-          interactive,
-          onPaint,
         ),
+      )}
+
+      {detail && (
+        <rect
+          x={-4.6}
+          y={-4.6}
+          width={9.2}
+          height={9.2}
+          filter={`url(#${prefix}-grain)`}
+          opacity=".07"
+          style={{ mixBlendMode: 'overlay' }}
+          pointerEvents="none"
+        />
       )}
     </g>
   )
@@ -499,82 +502,27 @@ export function FlowerShapes({
 export interface FlowerSvgProps {
   design: SquareDesign
   prefix: string
-  interactive?: boolean
-  onPaint?: (regionId: string) => void
-  onPaintBackground?: () => void
   className?: string
 }
 
 export default function FlowerSvg({
   design,
   prefix,
-  interactive = false,
-  onPaint,
-  onPaintBackground,
   className,
 }: FlowerSvgProps) {
-  const svgRef = useRef<SVGSVGElement>(null)
-  const painting = useRef(false)
   const geometry = useMemo(() => flowerGeometry(design.puffPlacement), [design.puffPlacement])
-
-  const paintAtTarget = (target: Element | null) => {
-    const background = target?.closest('[data-background]')
-    if (background) {
-      onPaintBackground?.()
-      return
-    }
-    const region = target?.closest('[data-region]')
-    const id = region?.getAttribute('data-region')
-    if (id) onPaint?.(id)
-  }
-
-  const handlePointerDown = (event: ReactPointerEvent<SVGSVGElement>) => {
-    if (!interactive) return
-    const target = event.target as Element | null
-    const paintable = target?.closest('[data-region], [data-background]')
-    if (!paintable) return
-    event.preventDefault()
-    painting.current = true
-    svgRef.current?.setPointerCapture(event.pointerId)
-    paintAtTarget(target)
-  }
-
-  const handlePointerMove = (event: ReactPointerEvent<SVGSVGElement>) => {
-    if (!interactive || !painting.current) return
-    paintAtTarget(document.elementFromPoint(event.clientX, event.clientY))
-  }
-
-  const endStroke = (event: ReactPointerEvent<SVGSVGElement>) => {
-    painting.current = false
-    if (svgRef.current?.hasPointerCapture(event.pointerId)) {
-      svgRef.current.releasePointerCapture(event.pointerId)
-    }
-  }
 
   return (
     <svg
-      ref={svgRef}
       viewBox={geometry.viewBox}
-      className={['flower-svg', interactive ? 'is-interactive' : '', className]
-        .filter(Boolean)
-        .join(' ')}
-      onPointerDown={handlePointerDown}
-      onPointerMove={handlePointerMove}
-      onPointerUp={endStroke}
-      onPointerCancel={endStroke}
-      role={interactive ? 'group' : 'img'}
-      aria-label={interactive ? '六瓣花方格，点击任意花瓣上色' : '六瓣花方格'}
+      className={['flower-svg', className].filter(Boolean).join(' ')}
+      role="img"
+      aria-label="六瓣花方格"
     >
       <defs>
         <ColorDefs design={design} prefix={prefix} />
       </defs>
-      <FlowerShapes
-        design={design}
-        prefix={prefix}
-        interactive={interactive}
-        onPaint={onPaint}
-        onPaintBackground={onPaintBackground}
-      />
+      <FlowerShapes design={design} prefix={prefix} />
     </svg>
   )
 }

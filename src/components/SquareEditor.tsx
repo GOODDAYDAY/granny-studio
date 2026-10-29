@@ -1,7 +1,6 @@
 import { Redo2, Undo2 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { describeColor } from '../domain/color'
-import { FLOWER_REGIONS } from '../domain/patterns'
 import { useStudio } from '../store/studio'
 import FlowerSvg from '../render/FlowerSvg'
 
@@ -10,8 +9,7 @@ export default function SquareEditor() {
     state.project.designs.find((item) => item.id === state.activeDesignId),
   )
   const activeColor = useStudio((state) => state.activeColor)
-  const paintRegion = useStudio((state) => state.paintRegion)
-  const setBackground = useStudio((state) => state.setBackground)
+  const palette = useStudio((state) => state.project.palette)
   const renameDesign = useStudio((state) => state.renameDesign)
   const undo = useStudio((state) => state.undo)
   const redo = useStudio((state) => state.redo)
@@ -41,6 +39,10 @@ export default function SquareEditor() {
     if (next !== design.name) renameDesign(design.id, next)
   }
 
+  const activeColorName =
+    palette.find((color) => color.hex === activeColor)?.name ??
+    describeColor(activeColor)
+
   return (
     <>
       <div className="stage-top">
@@ -62,8 +64,7 @@ export default function SquareEditor() {
             spellCheck={false}
           />
           <p className="stage-sub">
-            六瓣花 · {design.puffPlacement === 'inner' ? '外瓣在里' : '外瓣在外'} ·{' '}
-            {FLOWER_REGIONS.length} 个可上色块
+            四圈 · 4 个颜色 · {design.puffPlacement === 'inner' ? '外瓣在里' : '外瓣在外'}
           </p>
         </div>
         <div className="stage-actions">
@@ -92,17 +93,11 @@ export default function SquareEditor() {
 
       <div className="flower-stage">
         <div className="flower-wrap">
-          <FlowerSvg
-            design={design}
-            prefix="editor"
-            interactive
-            onPaint={paintRegion}
-            onPaintBackground={setBackground}
-          />
+          <FlowerSvg design={design} prefix="editor" />
         </div>
         <div className="stage-hint">
           <span className="hint-dot" style={{ background: activeColor }} />
-          当前 {describeColor(activeColor)} · 点花瓣上色，点边框内背景填底色
+          四圈四色 · 当前 {activeColorName}，在右侧给每一圈填色
         </div>
       </div>
     </>

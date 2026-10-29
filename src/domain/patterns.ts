@@ -9,14 +9,11 @@ export interface LayerMeta {
   count: number
 }
 
-/** Warm white for the area inside the outer border. */
-export const DEFAULT_BACKGROUND: Hex = '#F2E9D9'
-
 export const LAYERS: LayerMeta[] = [
-  { id: 'center', name: '花心', hint: '6 瓣小花瓣', count: 6 },
-  { id: 'puff', name: '外瓣', hint: '8 片鼓针', count: 8 },
-  { id: 'background', name: '底针', hint: '16 组 3 长针', count: 16 },
-  { id: 'border', name: '边框', hint: '每边 4 组', count: 16 },
+  { id: 'center', name: '第1圈', hint: '花心 · 6 瓣', count: 6 },
+  { id: 'puff', name: '第2圈', hint: '外瓣 · 8 瓣', count: 8 },
+  { id: 'background', name: '第3圈', hint: '底针 · 16 针', count: 16 },
+  { id: 'border', name: '第4圈', hint: '边框 · 16 段', count: 16 },
 ]
 
 const centerRegions: PatternRegion[] = Array.from({ length: 6 }, (_, index) => ({

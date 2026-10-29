@@ -26,8 +26,6 @@ export interface SquareDesign {
   name: string
   patternId: string
   colors: Record<string, Hex>
-  /** Background inside the outer border — the white area inside the frame. */
-  background: Hex
   puffPlacement: PuffPlacement
   createdAt: number
   updatedAt: number

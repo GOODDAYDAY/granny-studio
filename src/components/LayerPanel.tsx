@@ -1,11 +1,7 @@
 import { RefreshCw, Shuffle } from 'lucide-react'
-import {
-  getLayerColor,
-  isLayerUniform,
-} from '../domain/design'
-import { LAYERS, regionsOfLayer } from '../domain/patterns'
+import { getLayerColor } from '../domain/design'
+import { LAYERS } from '../domain/patterns'
 import { useStudio } from '../store/studio'
-import BackgroundPanel from './BackgroundPanel'
 
 export default function LayerPanel() {
   const design = useStudio((state) =>
@@ -24,70 +20,61 @@ export default function LayerPanel() {
     <section className="panel-section layer-panel">
       <div className="section-head compact">
         <div>
-          <span className="eyebrow">LAYERS</span>
-          <h2>分层上色</h2>
+          <span className="eyebrow">ROUNDS</span>
+          <h2>四圈四色</h2>
         </div>
-        <span className="section-count">点单瓣也行</span>
+        <span className="section-count">4 色</span>
       </div>
 
+      <p className="micro-hint layer-intro">
+        一圈一个颜色。选好调色盘，点这一圈的「填」。
+      </p>
+
       <div className="layer-list">
-        {LAYERS.map((layer) => {
-          const uniform = isLayerUniform(design, layer.id)
-          const colors = Array.from(
-            new Set(regionsOfLayer(layer.id).map((region) => design.colors[region.id])),
-          )
-          const swatchStyle = uniform
-            ? { background: getLayerColor(design, layer.id) }
-            : {
-                background: `conic-gradient(${colors
-                  .map(
-                    (color, index) =>
-                      `${color} ${(index * 360) / colors.length}deg ${((index + 1) * 360) / colors.length}deg`,
-                  )
-                  .join(', ')})`,
+        {LAYERS.map((layer) => (
+          <div
+            key={layer.id}
+            className={`layer-row${activeLayer === layer.id ? ' is-active' : ''}`}
+            role="button"
+            tabIndex={0}
+            aria-pressed={activeLayer === layer.id}
+            onClick={() => selectLayer(layer.id)}
+            onKeyDown={(event) => {
+              if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault()
+                selectLayer(layer.id)
               }
-          return (
-            <div
-              key={layer.id}
-              className={`layer-row${activeLayer === layer.id ? ' is-active' : ''}`}
-              role="button"
-              tabIndex={0}
-              aria-pressed={activeLayer === layer.id}
-              onClick={() => selectLayer(layer.id)}
-              onKeyDown={(event) => {
-                if (event.key === 'Enter' || event.key === ' ') {
-                  event.preventDefault()
-                  selectLayer(layer.id)
-                }
+            }}
+          >
+            <span
+              className="layer-swatch"
+              style={{ background: getLayerColor(design, layer.id) }}
+            />
+            <span className="layer-info">
+              <span className="layer-name">
+                {layer.name}
+                <em>{layer.count}</em>
+              </span>
+              <span className="layer-hint">{layer.hint}</span>
+            </span>
+            <button
+              type="button"
+              className="layer-fill"
+              title={`用当前颜色填满${layer.name}`}
+              onClick={(event) => {
+                event.stopPropagation()
+                fillLayer(layer.id)
               }}
             >
-              <span className="layer-swatch" style={swatchStyle} />
-              <span className="layer-info">
-                <span className="layer-name">
-                  {layer.name}
-                  <em>{layer.count}</em>
-                </span>
-                <span className="layer-hint">{layer.hint}</span>
-              </span>
-              <button
-                type="button"
-                className="layer-fill"
-                title={`用当前颜色填满${layer.name}`}
-                onClick={(event) => {
-                  event.stopPropagation()
-                  fillLayer(layer.id)
-                }}
-              >
-                填
-              </button>
-            </div>
-          )
-        })}
+              填
+            </button>
+          </div>
+        ))}
       </div>
 
       <div className="placement-row">
-        <span>外瓣层序</span>
-        <div className="segmented small" role="group" aria-label="外瓣层序">
+        <span>第2圈层序</span>
+        <div className="segmented small" role="group" aria-label="第2圈层序">
           <button
             type="button"
             className={design.puffPlacement === 'inner' ? 'is-active' : ''}
@@ -104,14 +91,14 @@ export default function LayerPanel() {
           </button>
         </div>
       </div>
-      <p className="micro-hint">照片里两种层序都有；切一下看效果。</p>
+      <p className="micro-hint">第2圈的 8 瓣可靠里或靠外；两种都常用。</p>
 
       <div className="layer-actions">
         <button
           type="button"
           className="btn btn-soft"
           onClick={rotateColors}
-          title="四个颜色在花心、外瓣、底针、边框之间轮换"
+          title="四个颜色在四圈之间轮换"
         >
           <RefreshCw size={14} />
           四色轮换
@@ -120,15 +107,13 @@ export default function LayerPanel() {
           type="button"
           className="icon-btn bordered"
           onClick={shuffleColors}
-          title="随机打乱四层颜色"
-          aria-label="随机打乱四层颜色"
+          title="随机打乱四圈颜色"
+          aria-label="随机打乱四圈颜色"
         >
           <Shuffle size={15} />
         </button>
       </div>
-      <p className="micro-hint">轮换会用层颜色重排，单瓣自定义会被覆盖。</p>
-
-      <BackgroundPanel />
+      <p className="micro-hint">只在四圈之间换色，不会再出现单瓣自定义。</p>
     </section>
   )
 }
