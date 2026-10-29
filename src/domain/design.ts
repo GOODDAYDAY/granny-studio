@@ -4,7 +4,7 @@ import {
   makeLayerColors,
   regionsOfLayer,
 } from './patterns'
-import type { Hex, LayerId, PuffPlacement, SquareDesign } from './types'
+import type { Hex, LayerId, SquareDesign } from './types'
 
 let fallbackId = 0
 
@@ -19,7 +19,6 @@ export function makeId(prefix: string): string {
 export interface CreateDesignInput {
   name: string
   colors: Record<LayerId, Hex>
-  puffPlacement?: PuffPlacement
   id?: string
   now?: number
 }
@@ -31,7 +30,6 @@ export function createDesign(input: CreateDesignInput): SquareDesign {
     name: input.name,
     patternId: FLOWER_PATTERN_ID,
     colors: makeLayerColors(input.colors),
-    puffPlacement: input.puffPlacement ?? 'outer',
     createdAt: now,
     updatedAt: now,
   }
@@ -113,14 +111,6 @@ export function shuffleLayerColors(
     background: colors[2],
     border: colors[3],
   })
-}
-
-export function setPuffPlacement(
-  design: SquareDesign,
-  placement: PuffPlacement,
-): SquareDesign {
-  if (design.puffPlacement === placement) return design
-  return { ...design, puffPlacement: placement, updatedAt: Date.now() }
 }
 
 export function renameDesign(design: SquareDesign, name: string): SquareDesign {

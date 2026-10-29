@@ -11,8 +11,8 @@ export interface LayerMeta {
 
 export const LAYERS: LayerMeta[] = [
   { id: 'center', name: '第1圈', hint: '花心 · 6 瓣', count: 6 },
-  { id: 'puff', name: '第2圈', hint: '外瓣 · 8 瓣', count: 8 },
-  { id: 'background', name: '第3圈', hint: '底针 · 16 针', count: 16 },
+  { id: 'puff', name: '第2圈', hint: '内瓣 · 6 瓣', count: 6 },
+  { id: 'background', name: '第3圈', hint: '外瓣 · 8 瓣', count: 8 },
   { id: 'border', name: '第4圈', hint: '边框 · 16 段', count: 16 },
 ]
 
@@ -22,13 +22,13 @@ const centerRegions: PatternRegion[] = Array.from({ length: 6 }, (_, index) => (
   index,
 }))
 
-const puffRegions: PatternRegion[] = Array.from({ length: 8 }, (_, index) => ({
+const puffRegions: PatternRegion[] = Array.from({ length: 6 }, (_, index) => ({
   id: `puff-${index}`,
   layer: 'puff',
   index,
 }))
 
-const backgroundRegions: PatternRegion[] = Array.from({ length: 16 }, (_, index) => ({
+const backgroundRegions: PatternRegion[] = Array.from({ length: 8 }, (_, index) => ({
   id: `bg-${index}`,
   layer: 'background',
   index,

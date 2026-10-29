@@ -64,7 +64,7 @@ export default function SquareEditor() {
             spellCheck={false}
           />
           <p className="stage-sub">
-            四圈 · 4 个颜色 · {design.puffPlacement === 'inner' ? '外瓣在里' : '外瓣在外'}
+            四圈 · 4 个颜色 · 6 / 6 / 8 / 16
           </p>
         </div>
         <div className="stage-actions">

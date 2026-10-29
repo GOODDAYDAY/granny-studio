@@ -10,7 +10,6 @@ export default function LayerPanel() {
   const activeLayer = useStudio((state) => state.activeLayer)
   const selectLayer = useStudio((state) => state.selectLayer)
   const fillLayer = useStudio((state) => state.fillLayer)
-  const setPuffPlacement = useStudio((state) => state.setPuffPlacement)
   const rotateColors = useStudio((state) => state.rotateColors)
   const shuffleColors = useStudio((state) => state.shuffleColors)
 
@@ -71,27 +70,6 @@ export default function LayerPanel() {
           </div>
         ))}
       </div>
-
-      <div className="placement-row">
-        <span>第2圈层序</span>
-        <div className="segmented small" role="group" aria-label="第2圈层序">
-          <button
-            type="button"
-            className={design.puffPlacement === 'inner' ? 'is-active' : ''}
-            onClick={() => setPuffPlacement('inner')}
-          >
-            里侧
-          </button>
-          <button
-            type="button"
-            className={design.puffPlacement === 'outer' ? 'is-active' : ''}
-            onClick={() => setPuffPlacement('outer')}
-          >
-            外侧
-          </button>
-        </div>
-      </div>
-      <p className="micro-hint">第2圈的 8 瓣可靠里或靠外；两种都常用。</p>
 
       <div className="layer-actions">
         <button

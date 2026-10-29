@@ -20,7 +20,6 @@ import {
   isLayerUniform,
   normalizeDesignColors,
   rotateLayerColors,
-  setPuffPlacement,
   shuffleLayerColors,
 } from './design'
 import { flowerGeometry } from './geometry'
@@ -44,17 +43,16 @@ const layerColors: Record<LayerId, string> = {
 const design = createDesign({
   name: '测试方格',
   colors: layerColors,
-  puffPlacement: 'inner',
 })
 
 describe('flower pattern', () => {
   it('has the expected regions', () => {
     expect(regionsOfLayer('center')).toHaveLength(6)
-    expect(regionsOfLayer('puff')).toHaveLength(8)
-    expect(regionsOfLayer('background')).toHaveLength(16)
+    expect(regionsOfLayer('puff')).toHaveLength(6)
+    expect(regionsOfLayer('background')).toHaveLength(8)
     expect(regionsOfLayer('border')).toHaveLength(16)
-    expect(FLOWER_REGIONS).toHaveLength(46)
-    expect(new Set(FLOWER_REGIONS.map((region) => region.id)).size).toBe(46)
+    expect(FLOWER_REGIONS).toHaveLength(36)
+    expect(new Set(FLOWER_REGIONS.map((region) => region.id)).size).toBe(36)
     expect(LAYERS).toHaveLength(4)
   })
 
@@ -65,28 +63,27 @@ describe('flower pattern', () => {
     }
   })
 
-  it('builds both puff layer orders', () => {
-    const inner = flowerGeometry('inner')
-    const outer = flowerGeometry('outer')
-    expect(inner.petals).toHaveLength(6)
-    expect(inner.puffs).toHaveLength(8)
-    expect(inner.clusters).toHaveLength(16)
-    expect(inner.border).toHaveLength(16)
-    expect(inner.cornerHoles).toHaveLength(0)
+  it('builds the layered reference flower', () => {
+    const geometry = flowerGeometry()
+    expect(geometry.petals).toHaveLength(6)
+    expect(geometry.puffs).toHaveLength(6)
+    expect(geometry.clusters).toHaveLength(8)
+    expect(geometry.border).toHaveLength(16)
+    expect(geometry.cornerHoles).toHaveLength(0)
 
-    const innerPuff = Math.hypot(inner.puffs[0].cx, inner.puffs[0].cy)
-    const innerBackground = Math.hypot(inner.clusters[0].cx, inner.clusters[0].cy)
-    expect(innerPuff).toBeLessThan(innerBackground)
+    const inner = Math.hypot(geometry.puffs[0].cx, geometry.puffs[0].cy)
+    const outer = Math.hypot(geometry.clusters[0].cx, geometry.clusters[0].cy)
+    expect(inner).toBeLessThan(outer)
 
-    const outerPuff = Math.hypot(outer.puffs[0].cx, outer.puffs[0].cy)
-    const outerBackground = Math.hypot(outer.clusters[0].cx, outer.clusters[0].cy)
-    expect(outerPuff).toBeGreaterThan(outerBackground)
+    const outerTip = outer + geometry.clusters[0].length / 2
+    expect(outerTip).toBeGreaterThan(3.5)
+    expect(outerTip).toBeLessThan(4)
   })
 })
 
 describe('design operations', () => {
   it('creates a complete design', () => {
-    expect(Object.keys(design.colors)).toHaveLength(46)
+    expect(Object.keys(design.colors)).toHaveLength(36)
     expect(getLayerColors(design)).toEqual([
       '#112233',
       '#223344',
@@ -136,9 +133,7 @@ describe('design operations', () => {
     expect(next).not.toBe(design)
   })
 
-  it('changes puff placement and duplicates cleanly', () => {
-    const next = setPuffPlacement(design, 'outer')
-    expect(next.puffPlacement).toBe('outer')
+  it('duplicates cleanly', () => {
     const copy = duplicateDesign(design)
     expect(copy.id).not.toBe(design.id)
     expect(copy.colors).toEqual(design.colors)
@@ -192,15 +187,15 @@ describe('board operations', () => {
 })
 
 describe('demo project', () => {
-  it('starts with seven four-round colorways and a 2x2 board', () => {
+  it('starts with nine four-round colorways and a 2x2 board', () => {
     const project = createDemoProject()
-    expect(project.designs).toHaveLength(7)
+    expect(project.designs).toHaveLength(9)
     expect(project.board.rows).toBe(2)
     expect(project.board.cols).toBe(2)
     expect(occupiedCount(project.board)).toBe(4)
     expect(project.palette.length).toBeGreaterThanOrEqual(8)
     for (const item of project.designs) {
-      expect(Object.keys(item.colors)).toHaveLength(46)
+      expect(Object.keys(item.colors)).toHaveLength(36)
       for (const layer of LAYERS) {
         expect(isLayerUniform(item, layer.id)).toBe(true)
       }
@@ -214,18 +209,12 @@ describe('demo project', () => {
     expect(isValidProject({ schemaVersion: 1 } as Project)).toBe(false)
   })
 
-  it('makes the seven photo colorways in both layer orders', () => {
+  it('makes the nine reference colorways', () => {
     const designs = makePresetDesigns()
-    expect(designs.map((item) => item.puffPlacement)).toEqual([
-      'inner',
-      'inner',
-      'inner',
-      'inner',
-      'outer',
-      'inner',
-      'outer',
-    ])
+    expect(designs).toHaveLength(9)
     expect(designs.map((item) => item.name)).toEqual([
+      '绿蓝粉白',
+      '红白绿',
       '蓝白红',
       '灰蓝白',
       '绿黄白',

@@ -1,7 +1,5 @@
 export type Hex = string
 
-export type PuffPlacement = 'inner' | 'outer'
-
 export type LayerId = 'center' | 'puff' | 'background' | 'border'
 
 export type Rotation = 0 | 90 | 180 | 270
@@ -26,7 +24,6 @@ export interface SquareDesign {
   name: string
   patternId: string
   colors: Record<string, Hex>
-  puffPlacement: PuffPlacement
   createdAt: number
   updatedAt: number
 }

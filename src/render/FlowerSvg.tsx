@@ -424,7 +424,7 @@ export function FlowerShapes({
   prefix,
   detail = true,
 }: FlowerShapesProps) {
-  const geometry = useMemo(() => flowerGeometry(design.puffPlacement), [design.puffPlacement])
+  const geometry = useMemo(() => flowerGeometry(), [])
   const colors = useMemo(() => uniqueDesignColors(design), [design])
   const colorIndex = useMemo(() => new Map(colors.map((hex, index) => [hex, index])), [colors])
   const fillFor = (hex: string) => `url(#${prefix}-g-${colorIndex.get(hex) ?? 0})`
@@ -435,27 +435,6 @@ export function FlowerShapes({
       className="flower-root"
       filter={detail ? `url(#${prefix}-fuzz)` : undefined}
     >
-      {geometry.border.map((piece) => {
-        const color = design.colors[piece.regionId] ?? colors[0]
-        return (
-          <RegionShell
-            key={piece.regionId}
-            id={piece.regionId}
-            layer="border"
-          >
-            <g transform={`translate(${piece.cx} ${piece.cy}) rotate(${piece.rotation})`}>
-              <BorderShape
-                length={piece.length}
-                width={piece.width}
-                fill={fillFor(color)}
-                texture={texture}
-                detail={detail}
-              />
-            </g>
-          </RegionShell>
-        )
-      })}
-
       {geometry.clusters.map((piece) =>
         radialElement(
           piece,
@@ -482,6 +461,27 @@ export function FlowerShapes({
           detail,
         ),
       )}
+
+      {geometry.border.map((piece) => {
+        const color = design.colors[piece.regionId] ?? colors[0]
+        return (
+          <RegionShell
+            key={piece.regionId}
+            id={piece.regionId}
+            layer="border"
+          >
+            <g transform={`translate(${piece.cx} ${piece.cy}) rotate(${piece.rotation})`}>
+              <BorderShape
+                length={piece.length}
+                width={piece.width}
+                fill={fillFor(color)}
+                texture={texture}
+                detail={detail}
+              />
+            </g>
+          </RegionShell>
+        )
+      })}
 
       {detail && (
         <rect
@@ -510,7 +510,7 @@ export default function FlowerSvg({
   prefix,
   className,
 }: FlowerSvgProps) {
-  const geometry = useMemo(() => flowerGeometry(design.puffPlacement), [design.puffPlacement])
+  const geometry = useMemo(() => flowerGeometry(), [])
 
   return (
     <svg

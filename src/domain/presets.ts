@@ -53,52 +53,57 @@ export function makePresetDesigns(): SquareDesign[] {
 
   return [
     createDesign({
+      id: 'design-mint',
+      name: '绿蓝粉白',
+      colors: colors('#14532D', '#A8C9E8', pink, cream),
+      now,
+    }),
+    createDesign({
+      id: 'design-berry',
+      name: '红白绿',
+      colors: colors('#C63A32', '#C63A32', cream, '#14532D'),
+      now,
+    }),
+    createDesign({
       id: 'design-flag',
       name: '蓝白红',
       colors: colors('#1E4E79', cream, '#C63A32', '#2E547F'),
-      puffPlacement: 'inner',
       now,
     }),
     createDesign({
       id: 'design-slate',
       name: '灰蓝白',
       colors: colors('#1C4B56', '#A8C9E8', cream, '#6E6A6A'),
-      puffPlacement: 'inner',
       now,
     }),
     createDesign({
       id: 'design-meadow',
       name: '绿黄白',
       colors: colors('#14532D', '#F1D879', cream, '#7EA477'),
-      puffPlacement: 'inner',
       now,
     }),
     createDesign({
       id: 'design-pink',
       name: '粉边白花',
       colors: colors(green, cream, brown, pink),
-      puffPlacement: 'inner',
       now,
     }),
     createDesign({
       id: 'design-brown',
       name: '棕边白花',
       colors: colors(pink, cream, green, brown),
-      puffPlacement: 'outer',
       now,
     }),
     createDesign({
       id: 'design-green',
       name: '绿边粉花',
       colors: colors(cream, pink, brown, green),
-      puffPlacement: 'inner',
       now,
     }),
     createDesign({
       id: 'design-cream',
       name: '白边粉花',
       colors: colors(brown, pink, green, cream),
-      puffPlacement: 'outer',
       now,
     }),
   ]
@@ -109,10 +114,10 @@ export function createDemoProject(): Project {
   const board = createBoard(2, 2, FABRIC_SWATCHES[0])
   board.gap = 0.05
   board.cells = {
-    '0:0': { designId: 'design-flag', rotation: 0 },
-    '0:1': { designId: 'design-slate', rotation: 0 },
-    '1:0': { designId: 'design-meadow', rotation: 0 },
-    '1:1': { designId: 'design-pink', rotation: 0 },
+    '0:0': { designId: 'design-mint', rotation: 0 },
+    '0:1': { designId: 'design-berry', rotation: 0 },
+    '1:0': { designId: 'design-flag', rotation: 0 },
+    '1:1': { designId: 'design-slate', rotation: 0 },
   }
   return {
     schemaVersion: 1,

@@ -25,7 +25,6 @@ export function isValidProject(value: unknown): value is Project {
     if (typeof design.id !== 'string' || typeof design.name !== 'string') return false
     if (typeof design.patternId !== 'string') return false
     if (!isRecord(design.colors)) return false
-    if (design.puffPlacement !== 'inner' && design.puffPlacement !== 'outer') return false
   }
 
   return true

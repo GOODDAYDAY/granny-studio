@@ -1,4 +1,4 @@
-import type { LayerId, PuffPlacement } from './types'
+import type { LayerId } from './types'
 
 export const FLOWER_VIEW_SIZE = 9.2
 export const FLOWER_HALF = FLOWER_VIEW_SIZE / 2
@@ -59,7 +59,7 @@ function radialPiece(
   }
 }
 
-export function flowerGeometry(placement: PuffPlacement): FlowerGeometry {
+export function flowerGeometry(): FlowerGeometry {
   const petals = Array.from({ length: 6 }, (_, index) =>
     radialPiece(
       `petal-${index}`,
@@ -72,30 +72,27 @@ export function flowerGeometry(placement: PuffPlacement): FlowerGeometry {
     ),
   )
 
-  const puffRadius = placement === 'inner' ? 2.2 : 2.75
-  const clusterRadius = placement === 'inner' ? 2.75 : 2.2
-
-  const puffs = Array.from({ length: 8 }, (_, index) =>
+  const puffs = Array.from({ length: 6 }, (_, index) =>
     radialPiece(
       `puff-${index}`,
       'puff',
       'puff',
-      -90 + index * 45,
-      puffRadius,
-      1.28,
-      1.06,
+      -60 + index * 60,
+      1.95,
+      1.9,
+      1.48,
     ),
   )
 
-  const clusters = Array.from({ length: 16 }, (_, index) =>
+  const clusters = Array.from({ length: 8 }, (_, index) =>
     radialPiece(
       `bg-${index}`,
       'background',
       'cluster',
-      -78.75 + index * 22.5,
-      clusterRadius,
-      1.35,
-      1.12,
+      -90 + index * 45,
+      2.9,
+      1.9,
+      1.62,
     ),
   )
 

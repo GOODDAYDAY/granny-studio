@@ -35,7 +35,7 @@ export default function DesignLibrary() {
   const askReset = () => {
     requestConfirm({
       title: '恢复示例项目？',
-      body: '当前的方格和布局会被七款示例替换。这一步可以用撤销找回。',
+      body: '当前的方格和布局会被九款示例替换。这一步可以用撤销找回。',
       confirmLabel: '恢复示例',
       onConfirm: () => resetDemo(),
     })
@@ -88,9 +88,7 @@ export default function DesignLibrary() {
               />
               <div className="design-meta">
                 <span className="design-name">{design.name}</span>
-                <span className="design-sub">
-                  {design.puffPlacement === 'inner' ? '外瓣在里' : '外瓣在外'}
-                </span>
+                <span className="design-sub">四圈四色</span>
                 <span className="layer-dots" aria-hidden="true">
                   {colors.map((hex, index) => (
                     <i key={`${hex}-${index}`} style={{ background: hex }} />

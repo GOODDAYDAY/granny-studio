@@ -20,7 +20,6 @@ import {
   normalizeDesignColors,
   renameDesign as renameDesignEntity,
   rotateLayerColors,
-  setPuffPlacement as setPuffPlacementEntity,
   shuffleLayerColors,
 } from '../domain/design'
 import { createDemoProject } from '../domain/presets'
@@ -30,7 +29,6 @@ import type {
   Mode,
   PaletteColor,
   Project,
-  PuffPlacement,
   SquareDesign,
 } from '../domain/types'
 import { loadProject } from './persist'
@@ -82,7 +80,6 @@ interface StudioState {
   duplicateDesignForCell: (row: number, col: number) => void
   deleteDesign: (id: string) => void
   renameDesign: (id: string, name: string) => void
-  setPuffPlacement: (placement: PuffPlacement) => void
 
   selectColor: (hex: Hex) => void
   addPaletteColor: (hex: Hex, source?: PaletteColor['source']) => void
@@ -214,7 +211,6 @@ export const useStudio = create<StudioState>()((set, get) => {
           background: baseColors[3] ?? baseColors[0],
           border: baseColors[0],
         },
-        puffPlacement: source?.puffPlacement ?? 'outer',
       })
       commit((draft) => {
         draft.designs.push(design)
@@ -279,12 +275,6 @@ export const useStudio = create<StudioState>()((set, get) => {
         const index = draft.designs.findIndex((design) => design.id === id)
         if (index >= 0) draft.designs[index] = next
       })
-    },
-
-    setPuffPlacement: (placement) => {
-      const source = activeDesign()
-      if (!source) return
-      replaceActiveDesign(setPuffPlacementEntity(source, placement))
     },
 
     selectColor: (hex) => {
