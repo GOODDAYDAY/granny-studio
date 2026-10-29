@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import type { ReactNode } from 'react'
+import type { PointerEvent as ReactPointerEvent, ReactNode } from 'react'
 import { adjustLightness } from '../domain/color'
 import { flowerGeometry } from '../domain/geometry'
 import type { FlowerGeometry, RadialPiece } from '../domain/geometry'
@@ -503,21 +503,36 @@ export interface FlowerSvgProps {
   design: SquareDesign
   prefix: string
   className?: string
+  interactive?: boolean
+  onFillLayer?: (layer: LayerId) => void
 }
 
 export default function FlowerSvg({
   design,
   prefix,
   className,
+  interactive = false,
+  onFillLayer,
 }: FlowerSvgProps) {
   const geometry = useMemo(() => flowerGeometry(), [])
+
+  const handlePointerDown = (event: ReactPointerEvent<SVGSVGElement>) => {
+    if (!interactive) return
+    const target = event.target as Element | null
+    const region = target?.closest('[data-layer]')
+    const layer = region?.getAttribute('data-layer') as LayerId | null
+    if (layer) onFillLayer?.(layer)
+  }
 
   return (
     <svg
       viewBox={geometry.viewBox}
-      className={['flower-svg', className].filter(Boolean).join(' ')}
-      role="img"
-      aria-label="六瓣花方格"
+      className={['flower-svg', interactive ? 'is-interactive' : '', className]
+        .filter(Boolean)
+        .join(' ')}
+      role={interactive ? 'group' : 'img'}
+      aria-label={interactive ? '点任意一瓣，把整圈填成当前色' : '六瓣花方格'}
+      onPointerDown={handlePointerDown}
     >
       <defs>
         <ColorDefs design={design} prefix={prefix} />

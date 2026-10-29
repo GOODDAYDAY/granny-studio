@@ -603,6 +603,19 @@ p {
   user-select: none;
 }
 
+.flower-svg.is-interactive {
+  touch-action: manipulation;
+}
+
+.flower-svg.is-interactive .flower-region {
+  cursor: crosshair;
+}
+
+.flower-svg.is-interactive .flower-region:hover .base {
+  stroke: var(--accent);
+  stroke-width: 0.045;
+}
+
 .flower-region .base {
   transition: stroke 0.13s ease;
 }

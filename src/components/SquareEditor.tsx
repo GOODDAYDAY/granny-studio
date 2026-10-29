@@ -10,6 +10,7 @@ export default function SquareEditor() {
   )
   const activeColor = useStudio((state) => state.activeColor)
   const palette = useStudio((state) => state.project.palette)
+  const fillLayer = useStudio((state) => state.fillLayer)
   const renameDesign = useStudio((state) => state.renameDesign)
   const undo = useStudio((state) => state.undo)
   const redo = useStudio((state) => state.redo)
@@ -93,11 +94,16 @@ export default function SquareEditor() {
 
       <div className="flower-stage">
         <div className="flower-wrap">
-          <FlowerSvg design={design} prefix="editor" />
+          <FlowerSvg
+            design={design}
+            prefix="editor"
+            interactive
+            onFillLayer={fillLayer}
+          />
         </div>
         <div className="stage-hint">
           <span className="hint-dot" style={{ background: activeColor }} />
-          四圈四色 · 当前 {activeColorName}，在右侧给每一圈填色
+          四圈四色 · 当前 {activeColorName}；点任意一瓣，整圈填当前色
         </div>
       </div>
     </>
